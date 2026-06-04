@@ -3,6 +3,7 @@ import Hero from "@/Component/Home/Hero/Hero";
 import HotelFeatures from "@/Component/Home/HotelFeatures/HotelFeatures";
 import MiniGallery from "@/Component/Home/MiniGallery/MiniGallery";
 import PricingPlans from "@/Component/Home/PricingPlans/PricingPlans";
+import RoomTypes from "@/Component/Home/RoomTypes/RoomTypes";
 import WhyChooseUs from "@/Component/Home/WhyChooseUs/WhyChooseUs";
 
 export default function Home() {
@@ -13,6 +14,8 @@ export default function Home() {
       <BookingSearchForm />
 
       <WhyChooseUs />
+
+      <RoomTypes />
 
       <HotelFeatures />
 
