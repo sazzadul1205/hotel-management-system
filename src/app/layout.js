@@ -1,8 +1,12 @@
 // app/layout.js
 
 // Global Styles
-import Navbar from "@/Shared/Navbar/Navbar";
 import "./globals.css";
+
+// Shared
+import Footer from "@/Shared/Footer/Footer";
+import Navbar from "@/Shared/Navbar/Navbar";
+import ToTopButton from "@/Shared/ToTopButton/ToTopButton"; // Add this
 
 // Fonts
 import { Geist, Geist_Mono } from "next/font/google";
@@ -33,8 +37,9 @@ export default function RootLayout({ children }) {
     >
       <body>
         <Navbar />
-        
         {children}
+        <Footer />
+        <ToTopButton /> {/* Add To Top Button here */}
       </body>
     </html>
   );
