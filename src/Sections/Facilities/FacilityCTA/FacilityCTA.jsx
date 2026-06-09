@@ -1,10 +1,15 @@
 // src/Sections/Facilities/FacilityCTA/FacilityCTA.jsx
 "use client";
 
+// React
 import React from "react";
+
+// Next
 import Link from "next/link";
-import { FiArrowRight, FiCalendar, FiPhone, FiMail, FiHeart } from "react-icons/fi";
+
+// Icons
 import { GiKnifeFork } from "react-icons/gi";
+import { FiArrowRight, FiCalendar, FiPhone, FiMail, FiHeart } from "react-icons/fi";
 
 const FacilityCTA = ({ content = {} }) => {
   const {
@@ -21,6 +26,7 @@ const FacilityCTA = ({ content = {} }) => {
     },
   } = content;
 
+  // Function to render icons
   const renderIcon = (iconName, className = "h-4 w-4") => {
     switch (iconName) {
       case "calendar":
@@ -34,6 +40,7 @@ const FacilityCTA = ({ content = {} }) => {
 
   return (
     <section className="relative overflow-hidden py-16 sm:py-20 md:py-24">
+      {/* Background */}
       <div className="absolute inset-0 bg-linear-to-r from-[#2C4549] to-[#1a2f33]">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute -right-24 -top-24 h-64 w-64 rounded-full bg-[#FFD700]"></div>
@@ -41,6 +48,7 @@ const FacilityCTA = ({ content = {} }) => {
         </div>
       </div>
 
+      {/* Content */}
       <div className="relative container mx-auto px-4 text-center sm:px-6 lg:px-8">
         <div className="mx-auto max-w-4xl">
           <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-[#FFD700]/20 px-4 py-2">
@@ -62,8 +70,8 @@ const FacilityCTA = ({ content = {} }) => {
                 key={index}
                 href={button.link}
                 className={`group flex transform items-center justify-center gap-2 rounded-lg px-6 py-2.5 text-sm font-semibold transition-all duration-300 hover:scale-105 sm:px-8 sm:py-3 sm:text-base ${button.type === "primary"
-                    ? "bg-[#FFD700] text-[#2C4549] shadow-lg hover:bg-[#FFE44D]"
-                    : "border-2 border-white/30 bg-white/10 text-white backdrop-blur-sm hover:bg-white/20"
+                  ? "bg-[#FFD700] text-[#2C4549] shadow-lg hover:bg-[#FFE44D]"
+                  : "border-2 border-white/30 bg-white/10 text-white backdrop-blur-sm hover:bg-white/20"
                   }`}
               >
                 {renderIcon(button.icon, "h-4 w-4 sm:h-5 sm:w-5")}

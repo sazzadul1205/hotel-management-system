@@ -1,7 +1,10 @@
 // src/Sections/Facilities/FacilityHours/FacilityHours.jsx
 "use client";
 
+// React
 import React from "react";
+
+// Icons
 import { FiClock, FiCheck, FiPhone, FiMail } from "react-icons/fi";
 
 const FacilityHours = ({ content = {} }) => {
@@ -26,6 +29,8 @@ const FacilityHours = ({ content = {} }) => {
   return (
     <section className="bg-gray-50 py-12 sm:py-16 md:py-20">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+
+        {/* Header */}
         <div className="mx-auto mb-10 max-w-3xl text-center sm:mb-12">
           <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-[#FFD700]/10 px-4 py-2">
             <FiClock className="h-4 w-4 text-[#FFD700]" />
@@ -37,6 +42,7 @@ const FacilityHours = ({ content = {} }) => {
           <p className="mx-auto max-w-2xl text-sm text-gray-600">{description}</p>
         </div>
 
+        {/* Table */}
         <div className="mx-auto max-w-4xl overflow-hidden rounded-2xl bg-white shadow-lg">
           <div className="overflow-x-auto">
             <table className="w-full">

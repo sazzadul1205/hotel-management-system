@@ -1,9 +1,14 @@
 // src/Sections/Facilities/FacilityHero/FacilityHero.jsx
 "use client";
 
+// React
 import React from "react";
-import Image from "next/image";
+
+// Next
 import Link from "next/link";
+import Image from "next/image";
+
+// Icons
 import {
   FiArrowRight,
   FiHeart,
@@ -41,6 +46,7 @@ const FacilityHero = ({ content = {} }) => {
     },
   } = content;
 
+  // Function to render icons
   const renderIcon = (iconName, className = "h-4 w-4 sm:h-5 sm:w-5") => {
     const iconClass = `text-[#FFD700] ${className}`;
     switch (iconName) {
@@ -65,6 +71,7 @@ const FacilityHero = ({ content = {} }) => {
 
   return (
     <div className="relative min-h-[60vh] w-full overflow-hidden md:min-h-[70vh]">
+      {/* Background */}
       <Image
         src={backgroundImage}
         alt="DA Hotel Restaurant - Fine Dining Experience"
@@ -74,6 +81,7 @@ const FacilityHero = ({ content = {} }) => {
         sizes="100vw"
       />
 
+      {/* Overlay */}
       <div className="absolute inset-0 bg-linear-to-r from-black/80 via-black/60 to-black/70">
         <div
           className="absolute inset-0 opacity-10"
@@ -84,6 +92,7 @@ const FacilityHero = ({ content = {} }) => {
         />
       </div>
 
+      {/* Overlay Content */}
       <div className="absolute inset-0 flex flex-col items-center justify-center px-4 text-center text-white sm:px-6 md:px-8">
         <div className="w-full max-w-5xl animate-fade-in-up">
           <div className="mb-3 flex items-center justify-center gap-2 md:mb-4">

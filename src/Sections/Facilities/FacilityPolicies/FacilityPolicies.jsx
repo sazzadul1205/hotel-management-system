@@ -1,7 +1,7 @@
 // src/Sections/Facilities/FacilityPolicies/FacilityPolicies.jsx
 "use client";
 
-import React from "react";
+// Icons
 import { FiCheck, FiX, FiGift } from "react-icons/fi";
 
 const FacilityPolicies = ({ content = {} }) => {

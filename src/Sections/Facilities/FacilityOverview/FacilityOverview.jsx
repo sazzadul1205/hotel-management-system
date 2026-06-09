@@ -1,9 +1,12 @@
 // src/Sections/Facilities/FacilityOverview/FacilityOverview.jsx
 "use client";
 
+// Next
 import Image from "next/image";
+
+// Icons
 import { FiClock, FiUsers, FiAward } from "react-icons/fi";
-import { GiKnifeFork, GiChampagneCork } from "react-icons/gi"; 
+import { GiKnifeFork, GiChampagneCork } from "react-icons/gi";
 
 const FacilityOverview = ({ content = {} }) => {
   const {

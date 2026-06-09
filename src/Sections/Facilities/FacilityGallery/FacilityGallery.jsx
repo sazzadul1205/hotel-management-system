@@ -1,14 +1,22 @@
 // src/Sections/Facilities/FacilityGallery/FacilityGallery.jsx
 "use client";
 
+// React
 import React, { useState, useCallback, useEffect } from "react";
+
+// Next
 import Image from "next/image";
-import { FiX, FiChevronLeft, FiChevronRight, FiCamera,} from "react-icons/fi";
+
+// Icons
+import { FiX, FiChevronLeft, FiChevronRight, FiCamera, } from "react-icons/fi";
 
 const FacilityGallery = ({ content = {} }) => {
-  const [selectedImage, setSelectedImage] = useState(null);
-  const [currentIndex, setCurrentIndex] = useState(0);
 
+  // State
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [selectedImage, setSelectedImage] = useState(null);
+
+  // Destructure content with fallbacks
   const {
     title = "Restaurant Gallery",
     subtitle = "A Visual Feast",
@@ -127,7 +135,9 @@ const FacilityGallery = ({ content = {} }) => {
 
   return (
     <section className="bg-gray-50 py-12 sm:py-16 md:py-20">
+      {/* Container */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Title */}
         <div className="mx-auto mb-10 max-w-3xl text-center sm:mb-12">
           <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-[#FFD700]/10 px-4 py-2">
             <FiCamera className="h-4 w-4 text-[#FFD700]" />
@@ -139,6 +149,7 @@ const FacilityGallery = ({ content = {} }) => {
           <p className="mx-auto max-w-2xl text-sm text-gray-600">{description}</p>
         </div>
 
+        {/* Gallery */}
         <div className="grid gap-4 sm:grid-cols-2 sm:gap-5 md:gap-6 lg:grid-cols-3">
           {galleryImages.map((image, index) => (
             <div
@@ -239,8 +250,8 @@ const FacilityGallery = ({ content = {} }) => {
                     setSelectedImage(galleryImages[idx]);
                   }}
                   className={`h-1.5 rounded-full transition-all ${currentIndex === idx
-                      ? "w-4 bg-[#FFD700]"
-                      : "w-1.5 bg-white/50 hover:bg-white/80"
+                    ? "w-4 bg-[#FFD700]"
+                    : "w-1.5 bg-white/50 hover:bg-white/80"
                     }`}
                   aria-label={`Go to image ${idx + 1}`}
                 />
@@ -249,6 +260,7 @@ const FacilityGallery = ({ content = {} }) => {
           </div>
         </div>
       )}
+      
     </section>
   );
 };
