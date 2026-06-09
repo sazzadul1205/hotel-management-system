@@ -6,7 +6,7 @@ import "./globals.css";
 // Shared
 import Footer from "@/Shared/Footer/Footer";
 import Navbar from "@/Shared/Navbar/Navbar";
-import ToTopButton from "@/Shared/ToTopButton/ToTopButton"; // Add this
+import ToTopButton from "@/Shared/ToTopButton/ToTopButton"; 
 
 // Fonts
 import { Geist, Geist_Mono } from "next/font/google";
@@ -31,7 +31,10 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
+    <html
+      lang="en"
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+    >
       <body>
         <Navbar />
 
