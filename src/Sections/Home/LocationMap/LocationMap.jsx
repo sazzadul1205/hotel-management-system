@@ -30,7 +30,7 @@ const LocationMap = () => {
   // Active tab
   const [activeTab, setActiveTab] = useState("map");
 
-  // Hotel coordinates
+  // Hotel coordinates (New York City example)
   const hotelLocation = {
     name: "DA Hotel",
     address: "123 Luxury Avenue, Downtown District, New York, NY 10001",
@@ -84,6 +84,7 @@ const LocationMap = () => {
         google: `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`,
         waze: `https://www.waze.com/ul?q=${encodedAddress}`,
         apple: `https://maps.apple.com/?q=${encodedAddress}`,
+        osm: `https://www.openstreetmap.org/search?query=${encodedAddress}`,
       };
       window.open(urls[service], "_blank");
     },
@@ -107,11 +108,11 @@ const LocationMap = () => {
     [hotelLocation.address],
   );
 
-  // Google Maps Embed URL
-  const simpleMapUrl = `https://maps.google.com/maps?q=${encodeURIComponent(hotelLocation.address)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
+  // OpenStreetMap static image URL (no API key needed, never blocked)
+  const staticMapUrl = `https://staticmap.openstreetmap.de/staticmap.php?center=${hotelLocation.lat},${hotelLocation.lng}&zoom=14&size=800x400&markers=${hotelLocation.lat},${hotelLocation.lng},lightred1`;
 
-  // Toggle active tab
-  const newLocal = "text-[#FFD700] shrink-0";
+  // OpenStreetMap embed URL (no API key needed)
+  const embedMapUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${hotelLocation.lng - 0.05},${hotelLocation.lat - 0.05},${hotelLocation.lng + 0.05},${hotelLocation.lat + 0.05}&layer=mapnik&marker=${hotelLocation.lat},${hotelLocation.lng}`;
 
   return (
     <section className="bg-white py-12 sm:py-16 md:py-20 lg:py-24">
@@ -157,7 +158,7 @@ const LocationMap = () => {
                   aria-label="Copy address"
                 >
                   {copied ? (
-                    <FiCheck size={16} className="sm:.h-4.5 sm:w-4.5" />
+                    <FiCheck size={16} className="sm:h-4.5 sm:w-4.5" />
                   ) : (
                     <FiCopy size={16} className="sm:h-4.5 sm:w-4.5" />
                   )}
@@ -170,7 +171,7 @@ const LocationMap = () => {
 
               <div className="space-y-1.5 border-t border-white/20 pt-3 sm:space-y-2 sm:pt-4">
                 <div className="flex items-center gap-2 text-xs sm:gap-3 sm:text-sm">
-                  <FiPhone className={newLocal} size={14} />
+                  <FiPhone className="text-[#FFD700] shrink-0" size={14} />
                   <a
                     href={`tel:${hotelLocation.phone}`}
                     className="truncate transition hover:text-[#FFD700]"
@@ -190,16 +191,22 @@ const LocationMap = () => {
               </div>
 
               {/* Map Apps Buttons */}
-              <div className="mt-3 flex gap-2 sm:mt-4">
+              <div className="mt-3 grid grid-cols-3 gap-2 sm:mt-4">
                 <button
                   onClick={() => openMaps("google")}
-                  className="flex-1 rounded-lg bg-white/10 py-2 text-xs font-semibold transition hover:bg-white/20 sm:text-sm"
+                  className="rounded-lg bg-white/10 py-2 text-xs font-semibold transition hover:bg-white/20 sm:text-sm"
                 >
-                  Google Maps
+                  Google
+                </button>
+                <button
+                  onClick={() => openMaps("apple")}
+                  className="rounded-lg bg-white/10 py-2 text-xs font-semibold transition hover:bg-white/20 sm:text-sm"
+                >
+                  Apple
                 </button>
                 <button
                   onClick={() => openMaps("waze")}
-                  className="flex-1 rounded-lg bg-white/10 py-2 text-xs font-semibold transition hover:bg-white/20 sm:text-sm"
+                  className="rounded-lg bg-white/10 py-2 text-xs font-semibold transition hover:bg-white/20 sm:text-sm"
                 >
                   Waze
                 </button>
@@ -222,14 +229,13 @@ const LocationMap = () => {
                   <button
                     key={mode.id}
                     onClick={() => setSelectedTransport(mode.id)}
-                    className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2 text-xs transition-all sm:gap-2 sm:text-sm ${
-                      selectedTransport === mode.id
+                    className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2 text-xs transition-all sm:gap-2 sm:text-sm ${selectedTransport === mode.id
                         ? "bg-[#FFD700] text-[#2C4549]"
                         : "bg-white text-gray-600 hover:bg-gray-100"
-                    }`}
+                      }`}
                   >
                     <mode.icon size={14} className="sm:h-4 sm:w-4" />
-                    <span className="xs:inline hidden">{mode.label}</span>
+                    <span className="hidden xs:inline">{mode.label}</span>
                     <span className="xs:hidden">{mode.label.charAt(0)}</span>
                   </button>
                 ))}
@@ -286,22 +292,20 @@ const LocationMap = () => {
             <div className="mb-3 flex gap-1.5 sm:mb-4 sm:gap-2">
               <button
                 onClick={() => setActiveTab("map")}
-                className={`rounded-lg px-3 py-2 text-xs font-semibold transition sm:px-6 sm:text-sm ${
-                  activeTab === "map"
+                className={`rounded-lg px-3 py-2 text-xs font-semibold transition sm:px-6 sm:text-sm ${activeTab === "map"
                     ? "bg-[#FFD700] text-[#2C4549]"
                     : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                }`}
+                  }`}
               >
                 <FiMap className="mr-1 inline h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" />
                 Map View
               </button>
               <button
                 onClick={() => setActiveTab("nearby")}
-                className={`rounded-lg px-3 py-2 text-xs font-semibold transition sm:px-6 sm:text-sm ${
-                  activeTab === "nearby"
+                className={`rounded-lg px-3 py-2 text-xs font-semibold transition sm:px-6 sm:text-sm ${activeTab === "nearby"
                     ? "bg-[#FFD700] text-[#2C4549]"
                     : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                }`}
+                  }`}
               >
                 <FiStar className="mr-1 inline h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" />
                 Nearby Attractions
@@ -312,15 +316,15 @@ const LocationMap = () => {
             <div className="overflow-hidden rounded-xl bg-gray-100 shadow-lg sm:rounded-2xl">
               {activeTab === "map" ? (
                 <div className="relative">
-                  {/* Live Google Maps Embed */}
                   <div className="xs:h-80 relative h-64 w-full sm:h-96 md:h-112.5 lg:h-125">
+                    {/* OpenStreetMap Embed - Never blocked! */}
                     <iframe
-                      src={simpleMapUrl}
+                      src={embedMapUrl}
                       className="h-full w-full border-0"
                       allowFullScreen
                       loading="lazy"
-                      referrerPolicy="no-referrer-when-downgrade"
-                      title="DA Hotel Location Map"
+                      referrerPolicy="no-referrer"
+                      title="DA Hotel Location Map - OpenStreetMap"
                     />
 
                     {/* Custom Marker Overlay */}
@@ -328,7 +332,7 @@ const LocationMap = () => {
                       <div className="relative">
                         <div className="animate-bounce">
                           <FiMapPin
-                            size={28}
+                            size={32}
                             className="text-[#FFD700] drop-shadow-lg sm:h-9 sm:w-9"
                           />
                         </div>
@@ -345,6 +349,11 @@ const LocationMap = () => {
                       <FiMapPin size={12} className="text-[#FFD700] sm:h-3.5 sm:w-3.5" />
                       <span className="font-medium text-[#2C4549]">Hotel Location</span>
                     </div>
+                  </div>
+
+                  {/* Map Attribution */}
+                  <div className="absolute left-2 bottom-2 rounded bg-black/50 px-1.5 py-0.5 text-[8px] text-white/70 sm:left-4 sm:bottom-4 sm:text-[10px]">
+                    © OpenStreetMap contributors
                   </div>
                 </div>
               ) : (
@@ -425,7 +434,7 @@ const LocationMap = () => {
               <button
                 onClick={() =>
                   window.open(
-                    `https://www.google.com/maps/place/${encodeURIComponent(hotelLocation.address)}`,
+                    `https://www.openstreetmap.org/search?query=${encodeURIComponent(hotelLocation.address)}`,
                     "_blank",
                   )
                 }
@@ -451,7 +460,7 @@ const LocationMap = () => {
             <button
               onClick={() =>
                 window.open(
-                  `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(hotelLocation.address)}`,
+                  `https://www.openstreetmap.org/search?query=${encodeURIComponent(hotelLocation.address)}`,
                   "_blank",
                 )
               }
@@ -465,7 +474,7 @@ const LocationMap = () => {
       </div>
 
       {/* Bounce animation */}
-      <style jsx>{`
+      <style>{`
         @keyframes bounce {
           0%,
           100% {

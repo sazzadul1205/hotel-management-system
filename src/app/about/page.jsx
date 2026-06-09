@@ -4,10 +4,15 @@
 import React from 'react';
 
 // Sections
-import HeroAbout from '@/Sections/AboutUs/HeroAbout/HeroAbout';
+import CTA from '@/Sections/AboutUs/CTA/CTA';
+import Team from '@/Sections/AboutUs/Team/Team';
 import OurStory from '@/Sections/AboutUs/OurStory/OurStory';
-import MissionVision from '@/Sections/AboutUs/MissionVision/MissionVision';
+import HeroAbout from '@/Sections/AboutUs/HeroAbout/HeroAbout';
 import HotelStats from '@/Sections/AboutUs/HotelStats/HotelStats';
+import Facilities from '@/Sections/AboutUs/Facilities/Facilities';
+import LocationMap from '@/Sections/Home/LocationMap/LocationMap';
+import GuestReviews from '@/Sections/Home/GuestReviews/GuestReviews';
+import MissionVision from '@/Sections/AboutUs/MissionVision/MissionVision';
 
 const page = () => {
   return (
@@ -19,6 +24,16 @@ const page = () => {
       <MissionVision />
 
       <HotelStats />
+
+      <Facilities />
+
+      <Team />
+
+      <GuestReviews />
+
+      <LocationMap />
+
+      <CTA />
     </>
   );
 };
