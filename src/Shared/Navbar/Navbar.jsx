@@ -2,7 +2,7 @@
 // src/Shared/Navbar/Navbar.jsx
 
 // React
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 
 // Icons
 import {
@@ -21,8 +21,7 @@ import {
   FiStar,
   FiAward,
   FiShoppingBag,
-  FiSun,
-  FiMoon
+  FiX,
 } from "react-icons/fi";
 import {
   MdOutlineMeetingRoom,
@@ -30,7 +29,7 @@ import {
   MdOutlineSpa,
   MdOutlinePool,
   MdOutlineLocalParking,
-  MdOutlineEventAvailable
+  MdOutlineEventAvailable,
 } from "react-icons/md";
 import { GiGymBag } from "react-icons/gi";
 
@@ -43,12 +42,12 @@ const menuItems = [
   {
     label: "Home",
     href: "/",
-    icon: FiHome
+    icon: FiHome,
   },
   {
     label: "About Us",
     href: "/about",
-    icon: FiInfo
+    icon: FiInfo,
   },
   {
     label: "Our Rooms",
@@ -58,19 +57,19 @@ const menuItems = [
       {
         label: "Deluxe Suite",
         href: "/rooms/deluxe-suite",
-        icon: FiStar
+        icon: FiStar,
       },
       {
         label: "Family Room",
         href: "/rooms/family-room",
-        icon: FiUsers
+        icon: FiUsers,
       },
       {
         label: "Executive Suite",
         href: "/rooms/executive-suite",
-        icon: FiAward
-      }
-    ]
+        icon: FiAward,
+      },
+    ],
   },
   {
     label: "Facilities",
@@ -80,29 +79,29 @@ const menuItems = [
       {
         label: "Restaurant & Bar",
         href: "/facilities/restaurant",
-        icon: MdOutlineRestaurantMenu
+        icon: MdOutlineRestaurantMenu,
       },
       {
         label: "Swimming Pool",
         href: "/facilities/pool",
-        icon: MdOutlinePool
+        icon: MdOutlinePool,
       },
       {
         label: "Spa & Wellness",
         href: "/facilities/spa",
-        icon: MdOutlineSpa
+        icon: MdOutlineSpa,
       },
       {
         label: "Fitness Center",
         href: "/facilities/gym",
-        icon: GiGymBag
+        icon: GiGymBag,
       },
       {
         label: "Conference Hall",
         href: "/facilities/conference",
-        icon: MdOutlineEventAvailable
-      }
-    ]
+        icon: MdOutlineEventAvailable,
+      },
+    ],
   },
   {
     label: "Dining",
@@ -112,19 +111,19 @@ const menuItems = [
       {
         label: "Main Restaurant",
         href: "/dining/main-restaurant",
-        icon: MdOutlineRestaurantMenu
+        icon: MdOutlineRestaurantMenu,
       },
       {
         label: "Rooftop Cafe",
         href: "/dining/rooftop-cafe",
-        icon: FiCoffee
+        icon: FiCoffee,
       },
       {
         label: "Poolside Bar",
         href: "/dining/poolside-bar",
-        icon: FiCoffee
-      }
-    ]
+        icon: FiCoffee,
+      },
+    ],
   },
   {
     label: "Services",
@@ -134,72 +133,41 @@ const menuItems = [
       {
         label: "Room Service",
         href: "/services/room-service",
-        icon: FiShoppingBag
+        icon: FiShoppingBag,
       },
       {
         label: "Free WiFi",
         href: "/services/wifi",
-        icon: FiWifi
+        icon: FiWifi,
       },
       {
         label: "Parking",
         href: "/services/parking",
-        icon: MdOutlineLocalParking
+        icon: MdOutlineLocalParking,
       },
       {
         label: "Airport Transfer",
         href: "/services/airport-transfer",
-        icon: FiMapPin
-      }
-    ]
+        icon: FiMapPin,
+      },
+    ],
   },
   {
     label: "Contact",
     href: "/contact",
-    icon: FiPhone
-  }
+    icon: FiPhone,
+  },
 ];
 
 const Navbar = () => {
   // Dropdown
   const [openDropdown, setOpenDropdown] = useState(null);
 
-  // Theme - default to light mode with original colors
-  const [theme, setTheme] = useState(() => {
-    if (typeof window !== "undefined") {
-      const savedTheme = localStorage.getItem("theme");
-      if (savedTheme) {
-        return savedTheme;
-      }
-      return "light"; // Default to light mode
-    }
-    return "light";
-  });
-
-  // Theme menu
-  const [showThemeMenu, setShowThemeMenu] = useState(false);
+  // Mobile drawer state
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   // Get current page
   const pathname = usePathname();
-
-  // Available themes
-  const themes = [
-    { id: "light", name: "Light", icon: FiSun },
-    { id: "dark", name: "Dark", icon: FiMoon },
-  ];
-
-  // Initialize theme
-  useEffect(() => {
-    document.documentElement.setAttribute("data-theme", theme);
-  }, [theme]);
-
-  // Change theme function
-  const changeTheme = (newTheme) => {
-    setTheme(newTheme);
-    localStorage.setItem("theme", newTheme);
-    document.documentElement.setAttribute("data-theme", newTheme);
-    setShowThemeMenu(false);
-  };
 
   // Function to check if a link is active
   const isActive = (href) => {
@@ -211,65 +179,82 @@ const Navbar = () => {
 
   // Function to check if any child is active
   const isChildActive = (children) => {
-    return children?.some(child => pathname?.startsWith(child.href));
+    return children?.some((child) => pathname?.startsWith(child.href));
   };
 
-  // Get current theme icon
-  const CurrentThemeIcon = themes.find(t => t.id === theme)?.icon || FiSun;
-
-  // Custom colors for light mode (original design)
-  // In dark mode, DaisyUI handles it automatically
-  const navbarBg = theme === "light" ? "#2C4549" : "bg-base-100";
-  const textColor = theme === "light" ? "text-white" : "text-base-content";
-  const hoverColor = theme === "light" ? "hover:text-[#FFD700]" : "hover:text-primary";
-  const activeColor = theme === "light" ? "text-[#FFD700]" : "text-primary";
-  const btnOutline = theme === "light"
-    ? "border-white text-white hover:bg-[#FFD700] hover:text-[#2C4549] hover:border-[#FFD700]"
-    : "border-base-content text-base-content hover:bg-primary hover:text-primary-content hover:border-primary";
-  const btnSolid = theme === "light"
-    ? "bg-[#FFD700] text-[#2C4549] hover:bg-[#FFE44D]"
-    : "bg-primary text-primary-content hover:bg-primary-focus";
+  // Close drawer when navigating
+  const handleMobileNavClick = () => {
+    setIsDrawerOpen(false);
+  };
 
   return (
-    <nav className={`navbar ${theme === "light" ? "bg-[#2C4549]" : "bg-base-100"} shadow-sm px-4 md:px-10 ${theme === "light" ? "text-white" : "text-base-content"}`}>
-      {/* Mobile Menu */}
-      <div className="navbar-start">
-        {/* Mobile Dropdown */}
-        <div className="dropdown">
-          <div tabIndex={0} role="button" className={`btn btn-ghost ${theme === "light" ? "text-white" : "text-base-content"} lg:hidden`}>
-            <FiMenu className="h-5 w-5" />
-          </div>
-
-          <ul
-            tabIndex={0}
-            className="menu menu-sm dropdown-content bg-base-100 text-base-content rounded-box z-10 mt-3 w-64 p-2 shadow"
+    <>
+      <nav className="navbar bg-[#2C4549] px-4 text-white shadow-sm md:px-10">
+        {/* Mobile Menu Button */}
+        <div className="navbar-start">
+          <button
+            onClick={() => setIsDrawerOpen(true)}
+            className="btn btn-ghost text-white lg:hidden"
           >
+            <FiMenu className="h-5 w-5" />
+          </button>
+
+          {/* Logo */}
+          <Link href="/" className="text-2xl font-bold md:text-4xl">
+            <b>DA</b>
+            <i className="pl-1 font-light">Hotel</i>
+          </Link>
+        </div>
+
+        {/* Desktop Menu */}
+        <div className="navbar-center hidden lg:flex">
+          <ul className="menu menu-horizontal gap-1 px-1">
             {menuItems.map((item, index) => (
               <li key={index}>
                 {item.children ? (
-                  <>
-                    <div className={`flex items-center gap-2 font-semibold ${isChildActive(item.children) ? 'text-primary bg-base-200' : ''}`}>
+                  <details open={openDropdown === item.label}>
+                    <summary
+                      className={`flex cursor-pointer items-center gap-2 transition-colors ${
+                        isChildActive(item.children)
+                          ? "text-[#FFD700]"
+                          : "text-white hover:text-[#FFD700]"
+                      }`}
+                      onMouseEnter={() => setOpenDropdown(item.label)}
+                      onMouseLeave={() => setOpenDropdown(null)}
+                    >
                       {item.icon && <item.icon size={18} />}
                       {item.label}
-                    </div>
-                    <ul className="p-2 ml-4">
+                    </summary>
+                    <ul
+                      className="z-10 w-56 rounded-lg bg-white p-2 text-gray-800 shadow-lg"
+                      onMouseEnter={() => setOpenDropdown(item.label)}
+                      onMouseLeave={() => setOpenDropdown(null)}
+                    >
                       {item.children.map((child, childIndex) => (
                         <li key={childIndex}>
                           <Link
                             href={child.href}
-                            className={`flex items-center gap-2 ${isActive(child.href) ? 'text-primary font-semibold' : ''}`}
+                            className={`flex items-center gap-2 rounded-lg px-2 py-1 transition-colors ${
+                              isActive(child.href)
+                                ? "bg-[#FFD700] text-[#2C4549]"
+                                : "hover:bg-gray-100"
+                            }`}
                           >
-                            {child.icon && <child.icon size={14} />}
+                            {child.icon && <child.icon size={16} />}
                             {child.label}
                           </Link>
                         </li>
                       ))}
                     </ul>
-                  </>
+                  </details>
                 ) : (
                   <Link
                     href={item.href}
-                    className={`flex items-center gap-2 font-semibold ${isActive(item.href) ? 'text-primary' : ''}`}
+                    className={`flex items-center gap-2 transition-colors ${
+                      isActive(item.href)
+                        ? "font-semibold text-[#FFD700]"
+                        : "text-white hover:text-[#FFD700]"
+                    }`}
                   >
                     {item.icon && <item.icon size={18} />}
                     {item.label}
@@ -277,116 +262,112 @@ const Navbar = () => {
                 )}
               </li>
             ))}
-
-            {/* Mobile Theme Menu Item */}
-            <li className="border-t border-base-200 mt-2 pt-2">
-              <details>
-                <summary className="flex items-center gap-2">
-                  <CurrentThemeIcon size={18} />
-                  Theme: {themes.find(t => t.id === theme)?.name || "Light"}
-                </summary>
-                <ul className="p-2">
-                  {themes.map((t) => (
-                    <li key={t.id}>
-                      <button
-                        onClick={() => changeTheme(t.id)}
-                        className={`flex items-center gap-2 w-full ${theme === t.id ? 'text-primary' : ''}`}
-                      >
-                        <t.icon size={14} />
-                        {t.name}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </details>
-            </li>
           </ul>
         </div>
 
-        {/* Logo */}
-        <Link href="/" className="text-2xl md:text-4xl font-bold">
-          <b>DA</b><i className="pl-1 font-light">Hotel</i>
-        </Link>
-      </div>
+        {/* Desktop Buttons */}
+        <div className="navbar-end gap-3">
+          <button className="btn btn-outline hidden gap-2 border-white text-white hover:border-[#FFD700] hover:bg-[#FFD700] hover:text-[#2C4549] sm:flex">
+            <FiCalendar size={18} />
+            Book Now
+          </button>
+          <button className="btn gap-2 border-none bg-[#FFD700] text-[#2C4549] hover:bg-[#FFE44D]">
+            <FiLogIn size={18} />
+            Login
+          </button>
+        </div>
+      </nav>
 
-      {/* Desktop Menu */}
-      <div className="navbar-center hidden lg:flex">
-        <ul className="menu menu-horizontal px-1 gap-1">
-          {menuItems.map((item, index) => (
-            <li key={index}>
-              {item.children ? (
-                <details open={openDropdown === item.label}>
-                  <summary
-                    className={`flex items-center gap-2 transition-colors cursor-pointer ${isChildActive(item.children)
-                      ? activeColor
-                      : `${theme === "light" ? "text-white" : "text-base-content"} ${hoverColor}`
+      {/* Mobile Drawer Overlay */}
+      {isDrawerOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+          onClick={() => setIsDrawerOpen(false)}
+        />
+      )}
+
+      {/* Mobile Drawer Sidebar */}
+      <div
+        className={`fixed top-0 left-0 z-50 h-full w-[70%] max-w-sm transform bg-white transition-transform duration-300 ease-in-out lg:hidden ${
+          isDrawerOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        {/* Drawer Header */}
+        <div className="flex items-center justify-between border-b bg-[#2C4549] p-4 text-white">
+          <Link href="/" className="text-2xl font-bold" onClick={handleMobileNavClick}>
+            <b>DA</b>
+            <i className="pl-1 font-light">Hotel</i>
+          </Link>
+          <button
+            onClick={() => setIsDrawerOpen(false)}
+            className="rounded-lg p-2 hover:bg-white/10"
+          >
+            <FiX className="h-5 w-5" />
+          </button>
+        </div>
+
+        {/* Drawer Content */}
+        <div className="h-full overflow-y-auto pb-20">
+          <ul className="menu gap-1 p-4 text-black">
+            {menuItems.map((item, index) => (
+              <li key={index}>
+                {item.children ? (
+                  <details>
+                    <summary
+                      className={`flex items-center gap-2 font-semibold ${
+                        isChildActive(item.children) ? "bg-gray-100 text-[#2C4549]" : ""
                       }`}
-                    onMouseEnter={() => setOpenDropdown(item.label)}
-                    onMouseLeave={() => setOpenDropdown(null)}
+                    >
+                      {item.icon && <item.icon size={18} />}
+                      {item.label}
+                    </summary>
+                    <ul className="ml-4 p-2">
+                      {item.children.map((child, childIndex) => (
+                        <li key={childIndex}>
+                          <Link
+                            href={child.href}
+                            onClick={handleMobileNavClick}
+                            className={`flex items-center gap-2 ${
+                              isActive(child.href) ? "bg-gray-100 font-semibold text-[#2C4549]" : ""
+                            }`}
+                          >
+                            {child.icon && <child.icon size={14} />}
+                            {child.label}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </details>
+                ) : (
+                  <Link
+                    href={item.href}
+                    onClick={handleMobileNavClick}
+                    className={`flex items-center gap-2 font-semibold ${
+                      isActive(item.href) ? "bg-gray-100 text-[#2C4549]" : ""
+                    }`}
                   >
                     {item.icon && <item.icon size={18} />}
                     {item.label}
-                  </summary>
-                  <ul
-                    className="p-2 bg-base-100 text-base-content w-56 z-10 shadow-lg rounded-lg"
-                    onMouseEnter={() => setOpenDropdown(item.label)}
-                    onMouseLeave={() => setOpenDropdown(null)}
-                  >
-                    {item.children.map((child, childIndex) => (
-                      <li key={childIndex}>
-                        <Link
-                          href={child.href}
-                          className={`flex items-center gap-2 transition-colors rounded-lg px-2 py-1 ${isActive(child.href)
-                            ? 'bg-primary text-primary-content'
-                            : 'hover:bg-base-200'
-                            }`}
-                        >
-                          {child.icon && <child.icon size={16} />}
-                          {child.label}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </details>
-              ) : (
-                <Link
-                  href={item.href}
-                  className={`flex items-center gap-2 transition-colors ${isActive(item.href)
-                    ? `${activeColor} font-semibold`
-                    : `${theme === "light" ? "text-white" : "text-base-content"} ${hoverColor}`
-                    }`}
-                >
-                  {item.icon && <item.icon size={18} />}
-                  {item.label}
-                </Link>
-              )}
-            </li>
-          ))}
-        </ul>
+                  </Link>
+                )}
+              </li>
+            ))}
+          </ul>
+
+          {/* Mobile Action Buttons */}
+          <div className="mt-4 space-y-3 border-t p-4">
+            <button className="btn btn-outline w-full gap-2 border-[#2C4549] text-[#2C4549] hover:border-[#FFD700] hover:bg-[#FFD700] hover:text-[#2C4549]">
+              <FiCalendar size={18} />
+              Book Now
+            </button>
+            <button className="btn w-full gap-2 border-none bg-[#FFD700] text-[#2C4549] hover:bg-[#FFE44D]">
+              <FiLogIn size={18} />
+              Login
+            </button>
+          </div>
+        </div>
       </div>
-
-      <div className="navbar-end gap-3">
-
-
-        <button className={`btn btn-outline gap-2 hidden sm:flex ${btnOutline}`}>
-          <FiCalendar size={18} />
-          Book Now
-        </button>
-        <button className={`btn gap-2 border-none ${btnSolid}`}>
-          <FiLogIn size={18} />
-          Login
-        </button>
-
-        {/* Desktop Theme Toggle Button - Simple toggle */}
-        <button
-          onClick={() => changeTheme(theme === "light" ? "dark" : "light")}
-          className={` px-2 hover-text-primary-focus ${theme === "light" ? "text-white" : "text-base-content"}`}
-          aria-label="Toggle theme"
-        >
-          {theme === "light" ? <FiMoon size={20} /> : <FiSun size={20} />}
-        </button>
-      </div>
-    </nav>
+    </>
   );
 };
 

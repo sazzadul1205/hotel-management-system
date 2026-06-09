@@ -27,10 +27,10 @@ const ToTopButton = () => {
       {isVisible && (
         <button
           onClick={scrollToTop}
-          className="fixed bottom-6 right-6 z-50 bg-[#FFD700] text-[#2C4549] w-12 h-12 rounded-full shadow-lg flex items-center justify-center hover:bg-[#FFE44D] hover:scale-110 transition-all duration-300 group focus:outline-none focus:ring-2 focus:ring-[#FFD700] focus:ring-offset-2"
+          className="group fixed right-6 bottom-6 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-[#FFD700] text-[#2C4549] shadow-lg transition-all duration-300 hover:scale-110 hover:bg-[#FFE44D] focus:ring-2 focus:ring-[#FFD700] focus:ring-offset-2 focus:outline-none"
           aria-label="Scroll to top"
         >
-          <FiChevronUp size={24} className="group-hover:-translate-y-1 transition-transform" />
+          <FiChevronUp size={24} className="transition-transform group-hover:-translate-y-1" />
         </button>
       )}
     </>

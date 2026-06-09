@@ -31,15 +31,15 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
       <body>
         <Navbar />
+
         {children}
+
         <Footer />
-        <ToTopButton /> {/* Add To Top Button here */}
+
+        <ToTopButton />
       </body>
     </html>
   );
