@@ -1,16 +1,22 @@
+// eslint.config.mjs
+
+// Eslint Config
 import { defineConfig, globalIgnores } from "eslint/config";
+
+// Eslint plugins
 import nextVitals from "eslint-config-next/core-web-vitals";
 
-const eslintConfig = defineConfig([
+export default defineConfig([
+  // Next.js core
   ...nextVitals,
-  // Override default ignores of eslint-config-next.
-  globalIgnores([
-    // Default ignores of eslint-config-next:
-    ".next/**",
-    "out/**",
-    "build/**",
-    "next-env.d.ts",
-  ]),
-]);
 
-export default eslintConfig;
+  // Global ignores
+  globalIgnores([".next/**", "out/**", "build/**", "next-env.d.ts"]),
+
+  // Custom rules
+  {
+    rules: {
+      "react/no-unescaped-entities": "off",
+    },
+  },
+]);

@@ -6,7 +6,7 @@ import "./globals.css";
 // Shared
 import Footer from "@/Shared/Footer/Footer";
 import Navbar from "@/Shared/Navbar/Navbar";
-import ToTopButton from "@/Shared/ToTopButton/ToTopButton"; 
+import ToTopButton from "@/Shared/ToTopButton/ToTopButton";
 
 // Fonts
 import { Geist, Geist_Mono } from "next/font/google";
@@ -38,7 +38,7 @@ export default function RootLayout({ children }) {
       <body>
         <Navbar />
 
-        {children}
+        <main className="flex flex-col min-h-screen bg-white" >{children}</main>
 
         <Footer />
 
