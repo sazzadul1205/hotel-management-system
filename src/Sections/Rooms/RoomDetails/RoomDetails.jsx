@@ -1,14 +1,9 @@
 // src/Sections/Rooms/RoomDetails/RoomDetails.jsx
 "use client";
 
-// React
 import React, { useState, useCallback } from "react";
-
-// Next
-import Link from "next/link";
 import Image from "next/image";
-
-// Icons
+import Link from "next/link";
 import {
   FiWifi,
   FiTv,
@@ -21,8 +16,10 @@ import {
   FiHeart,
   FiShare2,
   FiArrowRight,
+  FiClock,
   FiMapPin,
   FiStar,
+  FiX,
 } from "react-icons/fi";
 import {
   MdOutlineKingBed,
@@ -33,16 +30,16 @@ import {
   MdOutlineBreakfastDining,
   MdOutlineSecurity,
 } from "react-icons/md";
+import { GiKnifeFork } from "react-icons/gi";
 
 const RoomDetails = ({ content = {} }) => {
-  
-  // State
-  const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState("");
+  const [selectedRoom, setSelectedRoom] = useState(null);
   const [selectedImage, setSelectedImage] = useState(0);
   const [activeTab, setActiveTab] = useState("overview");
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
 
-  // Lazy initialization for localStorage - No Effect needed!
+  // ✅ Lazy initialization for localStorage - No Effect needed!
   const [likedRooms, setLikedRooms] = useState(() => {
     try {
       const savedLikes = localStorage.getItem("likedRooms");
@@ -258,28 +255,66 @@ const RoomDetails = ({ content = {} }) => {
     });
   }, [showToastMessage]);
 
-  // Share room
+  // ✅ Fixed: Share room with proper clipboard fallback
   const shareRoom = useCallback(async (room) => {
+    const shareData = {
+      title: room.name,
+      text: `${room.name} - ${room.description}`,
+      url: `${window.location.origin}/rooms/${room.slug}`,
+    };
+
+    // Try native share first (mobile)
+    if (navigator.share && typeof navigator.share === 'function') {
+      try {
+        await navigator.share(shareData);
+        showToastMessage("Shared successfully!");
+        return;
+      } catch (error) {
+        if (error.name !== 'AbortError') {
+          console.error("Error sharing:", error);
+        }
+      }
+    }
+
+    // Fallback: copy to clipboard with error handling
     try {
-      if (navigator.share) {
-        await navigator.share({
-          title: room.name,
-          text: room.description,
-          url: `${window.location.origin}/rooms/${room.slug}`,
-        });
-      } else {
-        await navigator.clipboard.writeText(`${room.name}: ${room.description}`);
+      // Check if clipboard API is available
+      if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+        await navigator.clipboard.writeText(`${room.name}\n${room.description}\n${shareData.url}`);
         showToastMessage("Room details copied to clipboard!");
+      } else {
+        // Fallback for older browsers or non-HTTPS
+        const textArea = document.createElement('textarea');
+        textArea.value = `${room.name}\n${room.description}\n${shareData.url}`;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        textArea.style.top = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+
+        try {
+          const successful = document.execCommand('copy');
+          if (successful) {
+            showToastMessage("Room details copied to clipboard!");
+          } else {
+            showToastMessage("Please copy manually: " + shareData.url);
+          }
+        } catch (err) {
+          console.error("Fallback copy error:", err);
+          showToastMessage("Please copy manually: " + shareData.url);
+        } finally {
+          document.body.removeChild(textArea);
+        }
       }
     } catch (error) {
-      console.error("Error sharing:", error);
+      console.error("Clipboard error:", error);
+      showToastMessage("Unable to copy. Please share manually.");
     }
   }, [showToastMessage]);
 
   return (
     <section className="bg-gray-50 py-12 sm:py-16 md:py-20 lg:py-24">
-
-      {/* Container */}
       <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
         {/* Section Header */}
         <div className="mx-auto mb-8 max-w-3xl text-center sm:mb-10 md:mb-12">
@@ -389,8 +424,8 @@ const RoomDetails = ({ content = {} }) => {
                         key={tab}
                         onClick={() => setActiveTab(tab)}
                         className={`pb-2 text-sm font-semibold capitalize transition-colors whitespace-nowrap ${activeTab === tab
-                          ? "border-b-2 border-[#FFD700] text-[#FFD700]"
-                          : "text-gray-500 hover:text-[#2C4549]"
+                            ? "border-b-2 border-[#FFD700] text-[#FFD700]"
+                            : "text-gray-500 hover:text-[#2C4549]"
                           }`}
                       >
                         {tab}
@@ -467,8 +502,8 @@ const RoomDetails = ({ content = {} }) => {
                   >
                     <FiHeart
                       className={`h-5 w-5 ${likedRooms.includes(room.id)
-                        ? "fill-red-500 text-red-500"
-                        : "text-gray-400 hover:text-red-500"
+                          ? "fill-red-500 text-red-500"
+                          : "text-gray-400 hover:text-red-500"
                         }`}
                     />
                   </button>

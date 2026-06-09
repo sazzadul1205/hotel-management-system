@@ -13,7 +13,7 @@ export default function RoomsPage() {
       <RoomHero />
 
       {/* Two column layout for room details + booking */}
-      <section className="container mx-auto px-4 py-8">
+      <section className="container mx-auto px-4 py-8 text-black ">
         <div className="grid gap-8 lg:grid-cols-3">
           <div className="lg:col-span-2">
             <RoomDetails />
