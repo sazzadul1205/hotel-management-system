@@ -1,7 +1,17 @@
+// src/Sections/Home/RoomTypes/RoomTypes.jsx
 "use client";
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+
+// React
+import React, { useState, useEffect, useCallback } from "react";
+
+// Next
 import Image from "next/image";
 import Link from "next/link";
+
+// SweetAlert2
+import Swal from "sweetalert2";
+
+// Icons
 import {
   FiUsers,
   FiWifi,
@@ -17,6 +27,7 @@ import {
   FiStar,
   FiX,
   FiCheckCircle,
+  FiLoader,
 } from "react-icons/fi";
 import {
   MdOutlineKingBed,
@@ -25,142 +36,90 @@ import {
   MdOutlineRoomService,
 } from "react-icons/md";
 
-const RoomTypes = () => {
+// Amenity icon mapping
+const amenityIcons = {
+  wifi: FiWifi,
+  tv: FiTv,
+  wind: FiWind,
+  coffee: FiCoffee,
+  bathtub: MdOutlineBathtub,
+  maximize: FiMaximize,
+  roomService: MdOutlineRoomService,
+  balcony: MdOutlineBalcony,
+  users: FiUsers,
+};
+
+// Amenity labels
+const amenityLabels = {
+  wifi: "High-Speed WiFi",
+  tv: "Smart TV",
+  wind: "Air Conditioning",
+  coffee: "Coffee Maker",
+  bathtub: "Luxury Bathroom",
+  maximize: "Work Desk",
+  roomService: "24/7 Room Service",
+  balcony: "Private Balcony",
+  users: "Kids Amenities",
+};
+
+const RoomTypes = ({ data }) => {
+  const { sectionHeader = {}, rooms = [] } = data || {};
+
+  // Modal state
   const [selectedRoom, setSelectedRoom] = useState(null);
-  const [likedRooms, setLikedRooms] = useState(() => {
-    // Initialize from localStorage during component creation
-    if (typeof window === "undefined") return [];
-    try {
-      const savedFavorites = localStorage.getItem("favoriteRooms");
-      return savedFavorites ? JSON.parse(savedFavorites) : [];
-    } catch (error) {
-      console.error("Failed to load favorite rooms from localStorage:", error);
-      return [];
-    }
-  });
-  const [showShareToast, setShowShareToast] = useState(false);
+
+  // State
   const [shareMessage, setShareMessage] = useState("");
+  const [showShareToast, setShowShareToast] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState({});
 
-  const roomCategories = useMemo(
-    () => [
-      {
-        id: 1,
-        name: "Deluxe Room",
-        slug: "deluxe-room",
-        shortName: "Deluxe",
-        price: "$129",
-        priceNote: "per night",
-        size: "350 sq ft",
-        capacity: 2,
-        bedType: "King Size Bed",
-        view: "City View",
-        images: [
-          "/assets/images/Home/deluxe-room-1.webp",
-          "/assets/images/Home/deluxe-room-2.webp",
-          "/assets/images/Home/deluxe-room-3.webp",
-        ],
-        description:
-          "Experience modern comfort in our Deluxe Room, featuring contemporary design and premium amenities for a relaxing stay.",
-        longDescription:
-          "Our Deluxe Rooms offer the perfect blend of style and comfort. With modern furnishings, plush bedding, and thoughtful amenities, these rooms provide an ideal retreat for both business and leisure travelers. Large windows flood the room with natural light, creating a warm and inviting atmosphere.",
-        amenities: [
-          { name: "Free High-Speed WiFi", icon: FiWifi },
-          { name: "55-inch Smart TV", icon: FiTv },
-          { name: "Premium Air Conditioning", icon: FiWind },
-          { name: "Coffee Maker", icon: FiCoffee },
-          { name: "Luxury Bathroom", icon: MdOutlineBathtub },
-          { name: "Work Desk", icon: FiMaximize },
-        ],
-        features: ["Complimentary Water", "Mini Bar", "In-room Safe", "Ironing Board"],
-        popular: true,
-        color: "from-[#FFD700] to-[#FFA500]",
-      },
-      {
-        id: 2,
-        name: "Executive Suite",
-        slug: "executive-suite",
-        shortName: "Executive",
-        price: "$199",
-        priceNote: "per night",
-        size: "550 sq ft",
-        capacity: 2,
-        bedType: "King Size Bed + Sofa",
-        view: "Panoramic City View",
-        images: [
-          "/assets/images/Home/executive-1.webp",
-          "/assets/images/Home/executive-2.webp",
-          "/assets/images/Home/executive-3.webp",
-        ],
-        description:
-          "Designed for business travelers, our Executive Suite offers separate living area and premium workspace.",
-        longDescription:
-          "The Executive Suite is thoughtfully designed for the discerning business traveler. Featuring a separate living area with comfortable seating, a dedicated workspace with ergonomic chair, and premium amenities to ensure productivity and relaxation during your stay.",
-        amenities: [
-          { name: "Ultra High-Speed WiFi", icon: FiWifi },
-          { name: "65-inch 4K Smart TV", icon: FiTv },
-          { name: "Premium Climate Control", icon: FiWind },
-          { name: "Espresso Machine", icon: FiCoffee },
-          { name: "Spa-inspired Bathroom", icon: MdOutlineBathtub },
-          { name: "Executive Work Station", icon: FiMaximize },
-          { name: "24/7 Room Service", icon: MdOutlineRoomService },
-          { name: "Private Balcony", icon: MdOutlineBalcony },
-        ],
-        features: [
-          "Complimentary Breakfast",
-          "Express Check-in",
-          "Late Check-out",
-          "Airport Transfer",
-        ],
-        popular: false,
-        color: "from-blue-500 to-blue-600",
-      },
-      {
-        id: 3,
-        name: "Family Suite",
-        slug: "family-suite",
-        shortName: "Family",
-        price: "$249",
-        priceNote: "per night",
-        size: "750 sq ft",
-        capacity: 4,
-        bedType: "2 Queen Beds + Sofa",
-        view: "Pool or City View",
-        images: [
-          "/assets/images/Home/family-1.webp",
-          "/assets/images/Home/family-2.webp",
-          "/assets/images/Home/family-3.webp",
-        ],
-        description:
-          "Spacious suite perfect for families, featuring separate living area and kitchenette.",
-        longDescription:
-          "Our Family Suite provides ample space for the whole family. With two separate bedrooms, a comfortable living area, and a kitchenette, it's designed to make family vacations memorable. Kids will love the extra space, and parents will appreciate the thoughtful amenities.",
-        amenities: [
-          { name: "High-Speed WiFi", icon: FiWifi },
-          { name: "65-inch Smart TV", icon: FiTv },
-          { name: "Multi-zone AC", icon: FiWind },
-          { name: "Full Kitchenette", icon: FiCoffee },
-          { name: "Family Bathroom", icon: MdOutlineBathtub },
-          { name: "Living Area", icon: FiMaximize },
-          { name: "Kids Amenities", icon: FiUsers },
-          { name: "Private Balcony", icon: MdOutlineBalcony },
-        ],
-        features: ["Complimentary Breakfast (4)", "Kids Stay Free", "Rollaway Bed", "Pool Access"],
-        popular: false,
-        color: "from-green-500 to-green-600",
-      },
-    ],
-    [],
-  );
+  // Image loading states
+  const [imagesLoaded, setImagesLoaded] = useState({});
+  const [allImagesPreloaded, setAllImagesPreloaded] = useState(false);
 
-  // Save favorites to localStorage whenever likedRooms changes
+  // Collect all unique images from all rooms
+  const allImages = React.useMemo(() => {
+    const images = new Set();
+    rooms.forEach((room) => {
+      room.images.forEach((img) => images.add(img));
+    });
+    return Array.from(images);
+  }, [rooms]);
+
+  // Preload all images on mount
   useEffect(() => {
-    try {
-      localStorage.setItem("favoriteRooms", JSON.stringify(likedRooms));
-    } catch (error) {
-      console.error("Failed to save favorite rooms to localStorage:", error);
+    if (allImages.length === 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setAllImagesPreloaded(true);
+      return;
     }
-  }, [likedRooms]);
+
+    let loadedCount = 0;
+    const imageStatus = {};
+
+    const preloadImage = (src) => {
+      return new Promise((resolve) => {
+        const img = new window.Image();
+        img.onload = () => {
+          loadedCount++;
+          imageStatus[src] = true;
+          setImagesLoaded((prev) => ({ ...prev, [src]: true }));
+          resolve();
+        };
+        img.onerror = () => {
+          loadedCount++;
+          imageStatus[src] = false;
+          setImagesLoaded((prev) => ({ ...prev, [src]: false }));
+          resolve();
+        };
+        img.src = src;
+      });
+    };
+
+    Promise.all(allImages.map((src) => preloadImage(src))).then(() => {
+      setAllImagesPreloaded(true);
+    });
+  }, [allImages]);
 
   // Prevent body scroll when modal is open
   useEffect(() => {
@@ -174,30 +133,75 @@ const RoomTypes = () => {
     };
   }, [selectedRoom]);
 
+  // Map amenity strings to objects with icons and labels
+  const enrichAmenities = useCallback((room) => {
+    return room.amenities.map((amenityKey) => ({
+      key: amenityKey,
+      name: amenityLabels[amenityKey] || amenityKey,
+      icon: amenityIcons[amenityKey] || FiCheck,
+    }));
+  }, []);
+
+  // Toggle like - requires login
   const toggleLike = useCallback(
     (roomId) => {
-      setLikedRooms((prev) => {
-        const newLiked = prev.includes(roomId)
-          ? prev.filter((id) => id !== roomId)
-          : [...prev, roomId];
+      const room = rooms.find((r) => r.id === roomId);
+      const roomName = room?.name || "this room";
 
-        const room = roomCategories.find((r) => r.id === roomId);
-        if (room) {
-          setShareMessage(
-            prev.includes(roomId)
-              ? `Removed ${room.name} from favorites`
-              : `Added ${room.name} to favorites`,
-          );
-          setShowShareToast(true);
-          setTimeout(() => setShowShareToast(false), 2000);
+      Swal.fire({
+        toast: true,
+        position: "top-end",
+        icon: "warning",
+        title: "Please Login First",
+        text: `You need to login to add ${roomName} to your favorites!`,
+        showConfirmButton: true,
+        confirmButtonText: "Login Now",
+        confirmButtonColor: "#FFD700",
+        denyButtonText: "Maybe Later",
+        showDenyButton: true,
+        denyButtonColor: "#2C4549",
+        customClass: {
+          popup: "rounded-xl",
+          title: "text-[#2C4549] font-bold",
+          confirmButton: "px-4 py-2 rounded-lg font-semibold",
+          denyButton: "px-4 py-2 rounded-lg font-semibold",
+        },
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.location.href = "/login";
         }
-
-        return newLiked;
       });
     },
-    [roomCategories],
+    [rooms],
   );
 
+  // Copy text to clipboard with fallback
+  const copyToClipboard = async (text) => {
+    try {
+      // Modern approach - Clipboard API
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+        return true;
+      }
+      // Fallback for older browsers or non-HTTPS
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      textArea.style.position = "fixed";
+      textArea.style.left = "-999999px";
+      textArea.style.top = "-999999px";
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      const successful = document.execCommand("copy");
+      document.body.removeChild(textArea);
+      return successful;
+    } catch (error) {
+      console.error("Failed to copy:", error);
+      return false;
+    }
+  };
+
+  // Handle share - works without login
   const handleShare = async (room) => {
     const shareData = {
       title: `${room.name} at DA Hotel`,
@@ -206,276 +210,320 @@ const RoomTypes = () => {
     };
 
     try {
-      if (navigator.share && window.innerWidth <= 768) {
+      // Try native share first (mobile devices)
+      if (navigator.share) {
         await navigator.share(shareData);
         setShareMessage(`Shared ${room.name} successfully!`);
       } else {
-        await navigator.clipboard.writeText(`${shareData.text}\n\n${shareData.url}`);
-        setShareMessage(`Link copied to clipboard! Share ${room.name} with friends.`);
+        // Fallback to clipboard copy
+        const copySuccess = await copyToClipboard(
+          `${shareData.text}\n\n${shareData.url}`
+        );
+        if (copySuccess) {
+          setShareMessage(`Link copied to clipboard! Share ${room.name} with friends.`);
+        } else {
+          setShareMessage("Could not copy to clipboard. Please try again.");
+        }
       }
       setShowShareToast(true);
-      setTimeout(() => setShowShareToast(false), 2000);
+      setTimeout(() => setShowShareToast(false), 3000);
     } catch (error) {
       console.error("Error sharing:", error);
-      setShareMessage("Failed to share. Please try again.");
-      setShowShareToast(true);
-      setTimeout(() => setShowShareToast(false), 2000);
+      // Only show error if it's not a user cancellation
+      if (error.name !== "AbortError") {
+        setShareMessage("Failed to share. Please try again.");
+        setShowShareToast(true);
+        setTimeout(() => setShowShareToast(false), 3000);
+      }
     }
   };
 
+  // Handle book now
   const handleBookNow = (room) => {
-    try {
-      localStorage.setItem(
-        "selectedRoom",
-        JSON.stringify({
-          id: room.id,
-          name: room.name,
-          price: room.price,
-        }),
-      );
-    } catch (error) {
-      console.error("Failed to save selected room:", error);
-    }
     window.location.href = "/booking";
   };
 
+  // Handle image navigation - next
   const nextImage = useCallback((roomId, totalImages) => {
     setCurrentImageIndex((prev) => ({
       ...prev,
-      [roomId]: ((prev[roomId] || 0) + 1) % totalImages,
+      [roomId]: ((prev[roomId] ?? 0) + 1) % totalImages,
     }));
   }, []);
 
+  // Handle image navigation - previous
   const prevImage = useCallback((roomId, totalImages) => {
     setCurrentImageIndex((prev) => ({
       ...prev,
-      [roomId]: ((prev[roomId] || 0) - 1 + totalImages) % totalImages,
+      [roomId]: ((prev[roomId] ?? 0) - 1 + totalImages) % totalImages,
     }));
   }, []);
+
+  // Check if there's data to render
+  if (!rooms.length) {
+    return null;
+  }
+
+  // Check if a specific image is loaded
+  const isImageLoaded = (src) => {
+    return imagesLoaded[src] === true;
+  };
 
   return (
     <section className="bg-gray-50 py-12 sm:py-16 md:py-20 lg:py-24">
       <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
+        {/* Image Preloader Overlay */}
+        {!allImagesPreloaded && (
+          <div className="fixed inset-0 z-60 flex items-center justify-center bg-white/80 backdrop-blur-sm">
+            <div className="flex flex-col items-center gap-4">
+              <div className="relative">
+                <FiLoader className="h-12 w-12 animate-spin text-[#FFD700] sm:h-16 sm:w-16" />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="h-8 w-8 rounded-full border-4 border-[#2C4549]/20 sm:h-10 sm:w-10"></div>
+                </div>
+              </div>
+              <div className="text-center">
+                <p className="text-lg font-semibold text-[#2C4549] sm:text-xl">
+                  Loading Rooms
+                </p>
+                <p className="text-sm text-gray-500">
+                  Preparing your luxury experience...
+                </p>
+              </div>
+              {/* Progress bar */}
+              <div className="w-48 overflow-hidden rounded-full bg-gray-200 sm:w-64">
+                <div
+                  className="h-2 rounded-full bg-[#FFD700] transition-all duration-300"
+                  style={{
+                    width: `${(Object.keys(imagesLoaded).length / allImages.length) * 100}%`,
+                  }}
+                ></div>
+              </div>
+              <p className="text-xs text-gray-400">
+                {Object.keys(imagesLoaded).length} / {allImages.length} images loaded
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Section Header */}
         <div className="mx-auto mb-8 max-w-3xl text-center sm:mb-12 md:mb-16">
           <div className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-[#FFD700]/10 px-3 py-1.5 sm:mb-4 sm:gap-2 sm:px-4 sm:py-2">
             <MdOutlineKingBed className="h-4 w-4 text-[#FFD700] sm:h-4.5 sm:w-4.5" />
             <span className="text-xs font-semibold tracking-wide text-[#2C4549] uppercase sm:text-sm">
-              Accommodations
+              {sectionHeader.badge || "Accommodations"}
             </span>
           </div>
 
           <h2 className="mb-3 text-2xl font-bold text-[#2C4549] sm:mb-4 sm:text-3xl md:text-4xl lg:text-5xl">
-            Luxurious Room Types
+            {sectionHeader.title || "Luxurious Room Types"}
           </h2>
 
           <p className="text-sm text-gray-600 sm:text-base md:text-lg">
-            Discover our carefully designed rooms and suites, each offering unique comfort and style
+            {sectionHeader.description || ""}
           </p>
         </div>
 
         {/* Room Cards */}
-        <div className="space-y-8 sm:space-y-10 md:space-y-12">
-          {roomCategories.map((room, index) => (
-            <div
-              key={room.id}
-              className={`overflow-hidden rounded-xl bg-white shadow-lg transition-all duration-300 hover:shadow-2xl sm:rounded-2xl ${
-                index % 2 === 1 ? "lg:flex-row-reverse" : ""
-              } lg:flex`}
-            >
-              {/* Image Section */}
-              <div className="group relative overflow-hidden lg:w-1/2">
-                <div className="xs:h-64 relative h-56 min-h-62.5 sm:h-72 sm:min-h-75 md:h-80 lg:h-full">
-                  <Image
-                    src={room.images[currentImageIndex[room.id] || 0]}
-                    alt={room.name}
-                    fill
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 50vw"
-                    className="object-cover transition-transform duration-500 group-hover:scale-110"
-                  />
+        <div className={`space-y-8 sm:space-y-10 md:space-y-12 ${!allImagesPreloaded ? "opacity-0" : "opacity-100 transition-opacity duration-500"}`}>
+          {rooms.map((room, index) => {
+            const enrichedAmenities = enrichAmenities(room);
+            const currentImageSrc = room.images[currentImageIndex[room.id] ?? 0];
+            return (
+              <div
+                key={room.id}
+                className={`overflow-hidden rounded-xl bg-white shadow-lg transition-all duration-300 hover:shadow-2xl sm:rounded-2xl ${index % 2 === 1 ? "lg:flex-row-reverse" : ""
+                  } lg:flex`}
+              >
+                {/* Image Section */}
+                <div className="group relative overflow-hidden lg:w-1/2">
+                  <div className="xs:h-64 relative h-56 min-h-62.5 sm:h-72 sm:min-h-75 md:h-80 lg:h-full">
+                    {/* Loading skeleton */}
+                    {!isImageLoaded(currentImageSrc) && (
+                      <div className="absolute inset-0 animate-pulse bg-gray-200">
+                        <div className="flex h-full items-center justify-center">
+                          <FiLoader className="h-8 w-8 animate-spin text-gray-400" />
+                        </div>
+                      </div>
+                    )}
+                    <Image
+                      src={currentImageSrc}
+                      alt={room.name}
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 50vw"
+                      className={`object-cover transition-all duration-500 group-hover:scale-110 ${isImageLoaded(currentImageSrc) ? "opacity-100" : "opacity-0"
+                        }`}
+                      priority={index === 0}
+                    />
 
-                  {/* Mobile Image Navigation Arrows */}
-                  <div className="absolute inset-0 flex items-center justify-between p-2 lg:hidden">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        prevImage(room.id, room.images.length);
-                      }}
-                      className="rounded-full bg-black/50 p-2 text-white transition hover:bg-black/70"
-                      aria-label="Previous image"
-                    >
-                      <FiArrowRight className="h-4 w-4 rotate-180" />
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        nextImage(room.id, room.images.length);
-                      }}
-                      className="rounded-full bg-black/50 p-2 text-white transition hover:bg-black/70"
-                      aria-label="Next image"
-                    >
-                      <FiArrowRight className="h-4 w-4" />
-                    </button>
+                    {/* Mobile Image Navigation Arrows */}
+                    <div className="absolute inset-0 flex items-center justify-between p-2 lg:hidden">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          prevImage(room.id, room.images.length);
+                        }}
+                        className="rounded-full bg-black/50 p-2 text-white transition hover:bg-black/70"
+                        aria-label="Previous image"
+                      >
+                        <FiArrowRight className="h-4 w-4 rotate-180" />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          nextImage(room.id, room.images.length);
+                        }}
+                        className="rounded-full bg-black/50 p-2 text-white transition hover:bg-black/70"
+                        aria-label="Next image"
+                      >
+                        <FiArrowRight className="h-4 w-4" />
+                      </button>
+                    </div>
                   </div>
-                </div>
 
-                {/* Image Gallery Indicator */}
-                <div className="absolute bottom-2 left-2 flex items-center gap-1 rounded-full bg-black/60 px-2 py-1 text-xs text-white sm:bottom-4 sm:left-4 sm:px-3">
-                  <FiEye size={10} className="sm:h-3 sm:w-3" />
-                  <span>
-                    {(currentImageIndex[room.id] || 0) + 1}/{room.images.length} photos
-                  </span>
-                </div>
+                  {/* Image Gallery Indicator */}
+                  <div className="absolute bottom-2 left-2 flex items-center gap-1 rounded-full bg-black/60 px-2 py-1 text-xs text-white sm:bottom-4 sm:left-4 sm:px-3">
+                    <FiEye size={10} className="sm:h-3 sm:w-3" />
+                    <span>
+                      {(currentImageIndex[room.id] ?? 0) + 1}/{room.images.length} photos
+                    </span>
+                  </div>
 
-                {/* Image Dots Indicator */}
-                <div className="absolute right-2 bottom-2 flex gap-1.5 sm:right-4 sm:bottom-4">
-                  {room.images.map((_, idx) => (
-                    <button
-                      key={idx}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setCurrentImageIndex((prev) => ({
-                          ...prev,
-                          [room.id]: idx,
-                        }));
-                      }}
-                      className={`h-1.5 w-1.5 rounded-full transition-all sm:h-2 sm:w-2 ${
-                        (currentImageIndex[room.id] || 0) === idx
+                  {/* Image Dots Indicator */}
+                  <div className="absolute right-2 bottom-2 flex gap-1.5 sm:right-4 sm:bottom-4">
+                    {room.images.map((_, idx) => (
+                      <button
+                        key={idx}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setCurrentImageIndex((prev) => ({
+                            ...prev,
+                            [room.id]: idx,
+                          }));
+                        }}
+                        className={`h-1.5 w-1.5 rounded-full transition-all sm:h-2 sm:w-2 ${(currentImageIndex[room.id] ?? 0) === idx
                           ? "w-3 bg-[#FFD700] sm:w-4"
                           : "bg-white/70 hover:bg-white"
-                      }`}
-                      aria-label={`View image ${idx + 1}`}
-                    />
-                  ))}
-                </div>
-
-                {/* Popular Badge */}
-                {room.popular && (
-                  <div className="absolute top-2 left-2 flex items-center gap-1 rounded-full bg-[#FFD700] px-2 py-1 text-xs font-semibold text-[#2C4549] sm:top-4 sm:left-4 sm:px-3">
-                    <FiStar size={10} className="sm:h-3 sm:w-3" />
-                    Most Popular
-                  </div>
-                )}
-
-                {/* Favorite Badge on Image */}
-                {likedRooms.includes(room.id) && (
-                  <div className="absolute top-2 right-2 flex items-center gap-1 rounded-full bg-red-500 px-2 py-1 text-xs font-semibold text-white sm:top-4 sm:right-4">
-                    <FiHeart size={8} className="sm:h-2.5 sm:w-2.5" fill="white" />
-                    Favorite
-                  </div>
-                )}
-              </div>
-
-              {/* Content Section */}
-              <div className="p-4 sm:p-6 md:p-8 lg:w-1/2">
-                <div className="mb-3 flex flex-col items-start justify-between gap-3 sm:mb-4 sm:flex-row sm:gap-4">
-                  <div className="flex-1">
-                    <h3 className="mb-1.5 text-xl font-bold text-[#2C4549] sm:mb-2 sm:text-2xl md:text-3xl">
-                      {room.name}
-                    </h3>
-                    <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-gray-500 sm:gap-4 sm:text-sm">
-                      <span className="flex items-center gap-1">
-                        <FiMaximize size={12} className="sm:h-3.5 sm:w-3.5" />
-                        {room.size}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <FiUsers size={12} className="sm:h-3.5 sm:w-3.5" />
-                        Max {room.capacity} guests
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <MdOutlineKingBed size={12} className="sm:h-3.5 sm:w-3.5" />
-                        {room.bedType}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="text-left sm:text-right">
-                    <div className="text-xl font-bold text-[#FFD700] sm:text-2xl md:text-3xl">
-                      {room.price}
-                    </div>
-                    <div className="text-xs text-gray-400">{room.priceNote}</div>
-                  </div>
-                </div>
-
-                <p className="mb-3 text-sm text-gray-600 sm:mb-4 sm:text-base">
-                  {room.description}
-                </p>
-
-                {/* Amenities Grid */}
-                <div className="mb-3 grid grid-cols-2 gap-2 sm:mb-4 sm:gap-3">
-                  {room.amenities.slice(0, 4).map((amenity, idx) => (
-                    <div
-                      key={idx}
-                      className="flex items-center gap-1.5 text-xs text-gray-600 sm:gap-2 sm:text-sm"
-                    >
-                      <amenity.icon
-                        size={12}
-                        className="shrink-0 text-[#FFD700] sm:h-3.5 sm:w-3.5"
+                          }`}
+                        aria-label={`View image ${idx + 1}`}
                       />
-                      <span className="truncate">{amenity.name}</span>
+                    ))}
+                  </div>
+
+                  {/* Popular Badge */}
+                  {room.popular && (
+                    <div className="absolute top-2 left-2 flex items-center gap-1 rounded-full bg-[#FFD700] px-2 py-1 text-xs font-semibold text-[#2C4549] sm:top-4 sm:left-4 sm:px-3">
+                      <FiStar size={10} className="sm:h-3 sm:w-3" />
+                      Most Popular
                     </div>
-                  ))}
+                  )}
                 </div>
 
-                {/* Features Tags */}
-                <div className="mb-4 flex flex-wrap gap-1.5 sm:mb-6 sm:gap-2">
-                  {room.features.map((feature, idx) => (
-                    <span
-                      key={idx}
-                      className="rounded-full bg-gray-100 px-2 py-1 text-xs whitespace-nowrap text-gray-600"
+                {/* Content Section */}
+                <div className="p-4 sm:p-6 md:p-8 lg:w-1/2">
+                  <div className="mb-3 flex flex-col items-start justify-between gap-3 sm:mb-4 sm:flex-row sm:gap-4">
+                    <div className="flex-1">
+                      <h3 className="mb-1.5 text-xl font-bold text-[#2C4549] sm:mb-2 sm:text-2xl md:text-3xl">
+                        {room.name}
+                      </h3>
+                      <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-gray-500 sm:gap-4 sm:text-sm">
+                        <span className="flex items-center gap-1">
+                          <FiMaximize size={12} className="sm:h-3.5 sm:w-3.5" />
+                          {room.size}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <FiUsers size={12} className="sm:h-3.5 sm:w-3.5" />
+                          Max {room.capacity} guests
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <MdOutlineKingBed size={12} className="sm:h-3.5 sm:w-3.5" />
+                          {room.bedType}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="text-left sm:text-right">
+                      <div className="text-xl font-bold text-[#FFD700] sm:text-2xl md:text-3xl">
+                        {room.price}
+                      </div>
+                      <div className="text-xs text-gray-400">{room.priceNote}</div>
+                    </div>
+                  </div>
+
+                  <p className="mb-3 text-sm text-gray-600 sm:mb-4 sm:text-base">
+                    {room.description}
+                  </p>
+
+                  {/* Amenities Grid */}
+                  <div className="mb-3 grid grid-cols-2 gap-2 sm:mb-4 sm:gap-3">
+                    {enrichedAmenities.slice(0, 4).map((amenity, idx) => (
+                      <div
+                        key={idx}
+                        className="flex items-center gap-1.5 text-xs text-gray-600 sm:gap-2 sm:text-sm"
+                      >
+                        <amenity.icon
+                          size={12}
+                          className="shrink-0 text-[#FFD700] sm:h-3.5 sm:w-3.5"
+                        />
+                        <span className="truncate">{amenity.name}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Features Tags */}
+                  <div className="mb-4 flex flex-wrap gap-1.5 sm:mb-6 sm:gap-2">
+                    {room.features.map((feature, idx) => (
+                      <span
+                        key={idx}
+                        className="rounded-full bg-gray-100 px-2 py-1 text-xs whitespace-nowrap text-gray-600"
+                      >
+                        ✓ {feature}
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex gap-2 sm:gap-3">
+                    <button
+                      onClick={() => setSelectedRoom(room)}
+                      className="group flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-[#2C4549] py-2 text-sm font-semibold text-white transition hover:bg-[#1a2f33] sm:gap-2 sm:py-2.5 sm:text-base"
                     >
-                      ✓ {feature}
-                    </span>
-                  ))}
-                </div>
-
-                {/* Action Buttons */}
-                <div className="flex gap-2 sm:gap-3">
-                  <button
-                    onClick={() => setSelectedRoom(room)}
-                    className="group flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-[#2C4549] py-2 text-sm font-semibold text-white transition hover:bg-[#1a2f33] sm:gap-2 sm:py-2.5 sm:text-base"
-                  >
-                    View Details
-                    <FiArrowRight
-                      size={14}
-                      className="transition group-hover:translate-x-1 sm:h-4 sm:w-4"
-                    />
-                  </button>
-                  <button
-                    onClick={() => toggleLike(room.id)}
-                    className="group rounded-lg border border-gray-300 px-3 py-2 transition hover:border-[#FFD700] sm:px-4 sm:py-2.5"
-                    aria-label={
-                      likedRooms.includes(room.id) ? "Remove from favorites" : "Add to favorites"
-                    }
-                  >
-                    <FiHeart
-                      className={`transition ${
-                        likedRooms.includes(room.id)
-                          ? "fill-red-500 text-red-500"
-                          : "text-gray-400 group-hover:text-red-500"
-                      }`}
-                      size={18}
-                    />
-                  </button>
-                  <button
-                    onClick={() => handleShare(room)}
-                    className="group rounded-lg border border-gray-300 px-3 py-2 transition hover:border-[#FFD700] sm:px-4 sm:py-2.5"
-                    aria-label="Share room"
-                  >
-                    <FiShare2 size={18} className="text-gray-400 group-hover:text-[#FFD700]" />
-                  </button>
+                      View Details
+                      <FiArrowRight
+                        size={14}
+                        className="transition group-hover:translate-x-1 sm:h-4 sm:w-4"
+                      />
+                    </button>
+                    <button
+                      onClick={() => toggleLike(room.id)}
+                      className="group rounded-lg border border-gray-300 px-3 py-2 transition hover:border-[#FFD700] sm:px-4 sm:py-2.5"
+                      aria-label="Add to favorites"
+                    >
+                      <FiHeart
+                        className="text-gray-400 transition group-hover:text-red-500"
+                        size={18}
+                      />
+                    </button>
+                    <button
+                      onClick={() => handleShare(room)}
+                      className="group rounded-lg border border-gray-300 px-3 py-2 transition hover:border-[#FFD700] sm:px-4 sm:py-2.5"
+                      aria-label="Share room"
+                    >
+                      <FiShare2 size={18} className="text-gray-400 transition group-hover:text-[#FFD700]" />
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* View All Rooms Button */}
         <div className="mt-8 text-center sm:mt-10 md:mt-12">
           <Link
-            href="/our-rooms"
+            href={sectionHeader.ctaButton?.link || "/our-rooms"}
             className="btn inline-flex transform items-center gap-2 border-none bg-[#FFD700] px-6 py-2.5 text-sm font-semibold text-[#2C4549] shadow-md transition-all duration-300 hover:scale-105 hover:bg-[#FFE44D] hover:shadow-lg sm:px-8 sm:py-3 sm:text-base"
           >
-            View All Accommodations
+            {sectionHeader.ctaButton?.text || "View All Accommodations"}
             <FiArrowRight size={16} className="sm:h-4.5 sm:w-4.5" />
           </Link>
         </div>
@@ -510,11 +558,19 @@ const RoomTypes = () => {
               <div className="mb-4 grid grid-cols-1 gap-3 sm:mb-6 sm:grid-cols-2 sm:gap-4">
                 {selectedRoom.images.map((img, idx) => (
                   <div key={idx} className="relative h-40 overflow-hidden rounded-lg sm:h-48">
+                    {!isImageLoaded(img) && (
+                      <div className="absolute inset-0 animate-pulse bg-gray-200">
+                        <div className="flex h-full items-center justify-center">
+                          <FiLoader className="h-8 w-8 animate-spin text-gray-400" />
+                        </div>
+                      </div>
+                    )}
                     <Image
                       src={img}
                       alt={`${selectedRoom.name} ${idx + 1}`}
                       fill
-                      className="object-cover"
+                      className={`object-cover transition-opacity duration-300 ${isImageLoaded(img) ? "opacity-100" : "opacity-0"
+                        }`}
                       sizes="(max-width: 640px) 100vw, 50vw"
                     />
                   </div>
@@ -549,7 +605,7 @@ const RoomTypes = () => {
                     All Amenities
                   </h4>
                   <div className="grid grid-cols-2 gap-2 sm:gap-3">
-                    {selectedRoom.amenities.map((amenity, idx) => (
+                    {enrichAmenities(selectedRoom).map((amenity, idx) => (
                       <div key={idx} className="flex items-center gap-1.5 sm:gap-2">
                         <amenity.icon size={14} className="shrink-0 text-[#FFD700]" />
                         <span className="text-xs text-gray-700 sm:text-sm">{amenity.name}</span>

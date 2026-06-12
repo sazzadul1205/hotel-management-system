@@ -10,7 +10,6 @@ import {
   FiUsers,
   FiMapPin,
   FiSearch,
-  FiMail,
   FiClock,
   FiArrowRight,
   FiCheck,
@@ -18,7 +17,7 @@ import {
 } from "react-icons/fi";
 import { MdOutlineMeetingRoom, MdOutlineChildCare } from "react-icons/md";
 
-const BookingSearchForm = () => {
+const BookingSearchForm = ({ hotelLocations }) => {
   // Form state
   const [formData, setFormData] = useState({
     location: "dhaka",
@@ -34,13 +33,6 @@ const BookingSearchForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [promoApplied, setPromoApplied] = useState(false);
 
-  // Hotel branch locations
-  const locations = [
-    { value: "dhaka", label: "Dhaka - Main Branch" },
-    { value: "chittagong", label: "Chittagong Branch" },
-    { value: "cox-bazar", label: "Cox's Bazar Resort" },
-    { value: "sylhet", label: "Sylhet Retreat" },
-  ];
 
   // Handle input changes
   const handleChange = (e) => {
@@ -130,7 +122,7 @@ const BookingSearchForm = () => {
                 onChange={handleChange}
                 className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm transition focus:border-transparent focus:ring-2 focus:ring-[#FFD700] focus:outline-none sm:px-4 sm:py-3 sm:text-base"
               >
-                {locations.map((loc) => (
+                {hotelLocations?.map((loc) => (
                   <option key={loc.value} value={loc.value}>
                     {loc.label}
                   </option>
@@ -310,7 +302,7 @@ const BookingSearchForm = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="flex w-full transform items-center justify-center gap-2 rounded-lg bg-[#FFD700] py-3 text-base font-bold text-[#2C4549] shadow-lg shadow-[#FFD700]/20 transition-all duration-300 hover:scale-[1.02] hover:bg-[#FFE44D] disabled:cursor-not-allowed disabled:opacity-50 sm:gap-3 sm:py-4 sm:text-lg sm:hover:scale-105"
+              className="flex w-full transform items-center justify-center gap-2 rounded-lg bg-[#FFD700] py-3 text-base font-bold text-[#2C4549] shadow-lg shadow-[#FFD700]/20 transition-all duration-300 hover:bg-[#FFE44D] disabled:cursor-not-allowed disabled:opacity-50 sm:gap-3 sm:py-4 sm:text-lg "
             >
               {isLoading ? (
                 <>
