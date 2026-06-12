@@ -11,77 +11,22 @@ import Image from "next/image";
 // Icons
 import { FiX, FiChevronLeft, FiChevronRight, FiGrid, FiCamera } from "react-icons/fi";
 
-const MiniGallery = () => {
+const MiniGallery = ({ data }) => {
+  // Use data prop or fallback to empty array
+  const galleryImages = useMemo(() => {
+    return Array.isArray(data) ? data : [];
+  }, [data]);
+
   // Selected image
   const [selectedImage, setSelectedImage] = useState(null);
 
   // Current slide
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Gallery images
-  const galleryImages = useMemo(
-    () => [
-      {
-        id: 1,
-        src: "/assets/images/Home/lobby.webp",
-        alt: "Hotel Lobby",
-        category: "Lobby",
-        title: "Elegant Grand Lobby",
-        width: 800,
-        height: 600,
-      },
-      {
-        id: 2,
-        src: "/assets/images/Home/rooms.webp",
-        alt: "Deluxe Room",
-        category: "Rooms",
-        title: "Luxury Deluxe Suite",
-        width: 800,
-        height: 600,
-      },
-      {
-        id: 3,
-        src: "/assets/images/Home/pool.webp",
-        alt: "Swimming Pool",
-        category: "Facilities",
-        title: "Infinity Swimming Pool",
-        width: 800,
-        height: 600,
-      },
-      {
-        id: 4,
-        src: "/assets/images/Home/restaurant.webp",
-        alt: "Restaurant",
-        category: "Dining",
-        title: "Fine Dining Restaurant",
-        width: 800,
-        height: 600,
-      },
-      {
-        id: 5,
-        src: "/assets/images/Home/spa.webp",
-        alt: "Spa",
-        category: "Wellness",
-        title: "Luxury Spa & Wellness",
-        width: 800,
-        height: 600,
-      },
-      {
-        id: 6,
-        src: "/assets/images/Home/conference.webp",
-        alt: "Conference Hall",
-        category: "Business",
-        title: "Modern Conference Hall",
-        width: 800,
-        height: 600,
-      },
-    ],
-    [],
-  );
-
   // Lightbox - Open
   const openLightbox = useCallback(
     (index) => {
+      if (galleryImages.length === 0) return;
       setCurrentIndex(index);
       setSelectedImage(galleryImages[index]);
     },
@@ -95,6 +40,7 @@ const MiniGallery = () => {
 
   // Navigation - Next
   const nextImage = useCallback(() => {
+    if (galleryImages.length === 0) return;
     const nextIndex = (currentIndex + 1) % galleryImages.length;
     setCurrentIndex(nextIndex);
     setSelectedImage(galleryImages[nextIndex]);
@@ -102,6 +48,7 @@ const MiniGallery = () => {
 
   // Navigation - Previous
   const prevImage = useCallback(() => {
+    if (galleryImages.length === 0) return;
     const prevIndex = (currentIndex - 1 + galleryImages.length) % galleryImages.length;
     setCurrentIndex(prevIndex);
     setSelectedImage(galleryImages[prevIndex]);
@@ -109,7 +56,6 @@ const MiniGallery = () => {
 
   // Keyboard navigation
   useEffect(() => {
-    // Keyboard navigation
     const handleKeyDown = (e) => {
       if (!selectedImage) return;
       if (e.key === "ArrowRight") nextImage();
@@ -117,7 +63,6 @@ const MiniGallery = () => {
       if (e.key === "Escape") closeLightbox();
     };
 
-    // Add event listener
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [selectedImage, nextImage, prevImage, closeLightbox]);
@@ -134,6 +79,11 @@ const MiniGallery = () => {
     };
   }, [selectedImage]);
 
+  // If no images, don't render the section
+  if (galleryImages.length === 0) {
+    return null;
+  }
+
   return (
     <section className="bg-gray-50 py-12 sm:py-16 md:py-20 lg:py-24">
       <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
@@ -142,16 +92,16 @@ const MiniGallery = () => {
           <div className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-[#FFD700]/10 px-3 py-1.5 sm:mb-4 sm:gap-2 sm:px-4 sm:py-2">
             <FiCamera className="h-4 w-4 text-[#FFD700] sm:h-4.5 sm:w-4.5" />
             <span className="text-xs font-semibold tracking-wide text-[#2C4549] uppercase sm:text-sm">
-              Our Gallery
+              {data?.head?.title}
             </span>
           </div>
 
           <h2 className="mb-3 text-2xl font-bold text-[#2C4549] sm:mb-4 sm:text-3xl md:text-4xl lg:text-5xl">
-            A Glimpse of Paradise
+            {data?.head?.subtitle}
           </h2>
 
           <p className="mx-auto max-w-2xl text-sm text-gray-600 sm:text-base md:text-lg">
-            Explore our luxurious spaces through these captivating moments
+            {data?.head?.description}
           </p>
         </div>
 
@@ -166,7 +116,7 @@ const MiniGallery = () => {
               <div className="xs:h-56 relative h-48 w-full overflow-hidden sm:h-60 md:h-72 lg:h-80">
                 <Image
                   src={image.src}
-                  alt={image.alt}
+                  alt={image.alt || image.title || "Gallery image"}
                   fill
                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                   className="object-cover transition-transform duration-500 group-hover:scale-110"
@@ -252,7 +202,7 @@ const MiniGallery = () => {
               <div className="relative h-[50vh] w-full sm:h-[60vh] md:h-[70vh]">
                 <Image
                   src={selectedImage.src}
-                  alt={selectedImage.alt}
+                  alt={selectedImage.alt || selectedImage.title || "Gallery image"}
                   fill
                   sizes="90vw"
                   className="object-contain"
@@ -285,11 +235,10 @@ const MiniGallery = () => {
                       setCurrentIndex(idx);
                       setSelectedImage(galleryImages[idx]);
                     }}
-                    className={`h-1.5 w-1.5 rounded-full transition-all duration-300 sm:h-2 sm:w-2 ${
-                      currentIndex === idx
-                        ? "w-3 bg-[#FFD700] sm:w-4"
-                        : "bg-white/50 hover:bg-white/80"
-                    }`}
+                    className={`h-1.5 w-1.5 rounded-full transition-all duration-300 sm:h-2 sm:w-2 ${currentIndex === idx
+                      ? "w-3 bg-[#FFD700] sm:w-4"
+                      : "bg-white/50 hover:bg-white/80"
+                      }`}
                     aria-label={`Go to image ${idx + 1}`}
                   />
                 ))}

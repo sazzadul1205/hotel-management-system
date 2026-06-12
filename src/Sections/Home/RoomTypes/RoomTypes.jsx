@@ -73,53 +73,8 @@ const RoomTypes = ({ data }) => {
   const [showShareToast, setShowShareToast] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState({});
 
-  // Image loading states
+  // Image loading states per image
   const [imagesLoaded, setImagesLoaded] = useState({});
-  const [allImagesPreloaded, setAllImagesPreloaded] = useState(false);
-
-  // Collect all unique images from all rooms
-  const allImages = React.useMemo(() => {
-    const images = new Set();
-    rooms.forEach((room) => {
-      room.images.forEach((img) => images.add(img));
-    });
-    return Array.from(images);
-  }, [rooms]);
-
-  // Preload all images on mount
-  useEffect(() => {
-    if (allImages.length === 0) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setAllImagesPreloaded(true);
-      return;
-    }
-
-    let loadedCount = 0;
-    const imageStatus = {};
-
-    const preloadImage = (src) => {
-      return new Promise((resolve) => {
-        const img = new window.Image();
-        img.onload = () => {
-          loadedCount++;
-          imageStatus[src] = true;
-          setImagesLoaded((prev) => ({ ...prev, [src]: true }));
-          resolve();
-        };
-        img.onerror = () => {
-          loadedCount++;
-          imageStatus[src] = false;
-          setImagesLoaded((prev) => ({ ...prev, [src]: false }));
-          resolve();
-        };
-        img.src = src;
-      });
-    };
-
-    Promise.all(allImages.map((src) => preloadImage(src))).then(() => {
-      setAllImagesPreloaded(true);
-    });
-  }, [allImages]);
 
   // Prevent body scroll when modal is open
   useEffect(() => {
@@ -132,6 +87,11 @@ const RoomTypes = ({ data }) => {
       document.body.style.overflow = "unset";
     };
   }, [selectedRoom]);
+
+  // Handle image load
+  const handleImageLoad = useCallback((src) => {
+    setImagesLoaded((prev) => ({ ...prev, [src]: true }));
+  }, []);
 
   // Map amenity strings to objects with icons and labels
   const enrichAmenities = useCallback((room) => {
@@ -272,40 +232,6 @@ const RoomTypes = ({ data }) => {
   return (
     <section className="bg-gray-50 py-12 sm:py-16 md:py-20 lg:py-24">
       <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
-        {/* Image Preloader Overlay */}
-        {!allImagesPreloaded && (
-          <div className="fixed inset-0 z-60 flex items-center justify-center bg-white/80 backdrop-blur-sm">
-            <div className="flex flex-col items-center gap-4">
-              <div className="relative">
-                <FiLoader className="h-12 w-12 animate-spin text-[#FFD700] sm:h-16 sm:w-16" />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="h-8 w-8 rounded-full border-4 border-[#2C4549]/20 sm:h-10 sm:w-10"></div>
-                </div>
-              </div>
-              <div className="text-center">
-                <p className="text-lg font-semibold text-[#2C4549] sm:text-xl">
-                  Loading Rooms
-                </p>
-                <p className="text-sm text-gray-500">
-                  Preparing your luxury experience...
-                </p>
-              </div>
-              {/* Progress bar */}
-              <div className="w-48 overflow-hidden rounded-full bg-gray-200 sm:w-64">
-                <div
-                  className="h-2 rounded-full bg-[#FFD700] transition-all duration-300"
-                  style={{
-                    width: `${(Object.keys(imagesLoaded).length / allImages.length) * 100}%`,
-                  }}
-                ></div>
-              </div>
-              <p className="text-xs text-gray-400">
-                {Object.keys(imagesLoaded).length} / {allImages.length} images loaded
-              </p>
-            </div>
-          </div>
-        )}
-
         {/* Section Header */}
         <div className="mx-auto mb-8 max-w-3xl text-center sm:mb-12 md:mb-16">
           <div className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-[#FFD700]/10 px-3 py-1.5 sm:mb-4 sm:gap-2 sm:px-4 sm:py-2">
@@ -325,7 +251,7 @@ const RoomTypes = ({ data }) => {
         </div>
 
         {/* Room Cards */}
-        <div className={`space-y-8 sm:space-y-10 md:space-y-12 ${!allImagesPreloaded ? "opacity-0" : "opacity-100 transition-opacity duration-500"}`}>
+        <div className="space-y-8 sm:space-y-10 md:space-y-12">
           {rooms.map((room, index) => {
             const enrichedAmenities = enrichAmenities(room);
             const currentImageSrc = room.images[currentImageIndex[room.id] ?? 0];
@@ -340,9 +266,10 @@ const RoomTypes = ({ data }) => {
                   <div className="xs:h-64 relative h-56 min-h-62.5 sm:h-72 sm:min-h-75 md:h-80 lg:h-full">
                     {/* Loading skeleton */}
                     {!isImageLoaded(currentImageSrc) && (
-                      <div className="absolute inset-0 animate-pulse bg-gray-200">
-                        <div className="flex h-full items-center justify-center">
-                          <FiLoader className="h-8 w-8 animate-spin text-gray-400" />
+                      <div className="absolute inset-0 flex animate-pulse items-center justify-center bg-gray-200">
+                        <div className="flex flex-col items-center gap-2">
+                          <FiLoader className="h-8 w-8 animate-spin text-[#FFD700] sm:h-10 sm:w-10" />
+                          <span className="text-xs text-gray-500">Loading image...</span>
                         </div>
                       </div>
                     )}
@@ -354,6 +281,7 @@ const RoomTypes = ({ data }) => {
                       className={`object-cover transition-all duration-500 group-hover:scale-110 ${isImageLoaded(currentImageSrc) ? "opacity-100" : "opacity-0"
                         }`}
                       priority={index === 0}
+                      onLoad={() => handleImageLoad(currentImageSrc)}
                     />
 
                     {/* Mobile Image Navigation Arrows */}
@@ -559,10 +487,8 @@ const RoomTypes = ({ data }) => {
                 {selectedRoom.images.map((img, idx) => (
                   <div key={idx} className="relative h-40 overflow-hidden rounded-lg sm:h-48">
                     {!isImageLoaded(img) && (
-                      <div className="absolute inset-0 animate-pulse bg-gray-200">
-                        <div className="flex h-full items-center justify-center">
-                          <FiLoader className="h-8 w-8 animate-spin text-gray-400" />
-                        </div>
+                      <div className="absolute inset-0 flex animate-pulse items-center justify-center bg-gray-200">
+                        <FiLoader className="h-8 w-8 animate-spin text-[#FFD700]" />
                       </div>
                     )}
                     <Image
@@ -572,6 +498,7 @@ const RoomTypes = ({ data }) => {
                       className={`object-cover transition-opacity duration-300 ${isImageLoaded(img) ? "opacity-100" : "opacity-0"
                         }`}
                       sizes="(max-width: 640px) 100vw, 50vw"
+                      onLoad={() => handleImageLoad(img)}
                     />
                   </div>
                 ))}

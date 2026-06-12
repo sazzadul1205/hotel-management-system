@@ -31,100 +31,24 @@ const StarRating = ({ rating, size = "sm" }) => {
   );
 };
 
-const GuestReviews = () => {
+const GuestReviews = ({ data }) => {
+  // Use data prop or fallback to empty array
+  const reviews = Array.isArray(data) ? data : [];
+
   // Current slide
   const [currentIndex, setCurrentIndex] = useState(0);
 
   // Auto play
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
 
-  // Guest reviews
-  const reviews = [
-    {
-      id: 1,
-      name: "Sarah Johnson",
-      location: "New York, USA",
-      rating: 5,
-      date: "March 2026",
-      review:
-        "Absolutely stunning hotel! The rooms were immaculate, the staff went above and beyond, and the breakfast buffet was incredible. The pool area is perfect for relaxation. Will definitely be coming back!",
-      image: null,
-      verified: true,
-      stayedFor: "Family Vacation",
-      roomType: "Deluxe Suite",
-    },
-    {
-      id: 2,
-      name: "Michael Chen",
-      location: "Singapore",
-      rating: 5,
-      date: "February 2026",
-      review:
-        "One of the best hotel experiences I've ever had. The attention to detail is remarkable. The spa treatment was world-class, and the rooftop restaurant offers breathtaking views. Highly recommend!",
-      image: null,
-      verified: true,
-      stayedFor: "Business Trip",
-      roomType: "Executive Suite",
-    },
-    {
-      id: 3,
-      name: "Emma Williams",
-      location: "London, UK",
-      rating: 4,
-      date: "February 2026",
-      review:
-        "Beautiful hotel with excellent service. The location is perfect - close to all major attractions. The only minor issue was slow WiFi in the room, but everything else was perfect. Would stay again!",
-      image: null,
-      verified: true,
-      stayedFor: "Couple Getaway",
-      roomType: "Deluxe Room",
-    },
-    {
-      id: 4,
-      name: "David Rodriguez",
-      location: "Madrid, Spain",
-      rating: 5,
-      date: "January 2026",
-      review:
-        "Exceptional service from check-in to check-out. The concierge helped us plan our entire itinerary. The rooms are spacious and beautifully designed. The complimentary afternoon tea was a lovely touch!",
-      image: null,
-      verified: true,
-      stayedFor: "Honeymoon",
-      roomType: "Premium Suite",
-    },
-    {
-      id: 5,
-      name: "Lisa Thompson",
-      location: "Sydney, Australia",
-      rating: 5,
-      date: "January 2026",
-      review:
-        "This hotel exceeded all expectations. The staff remembered our names and preferences. The fitness center is well-equipped, and the pool area is pristine. Best hotel in the city by far!",
-      image: null,
-      verified: true,
-      stayedFor: "Leisure",
-      roomType: "Family Room",
-    },
-    {
-      id: 6,
-      name: "James Wilson",
-      location: "Toronto, Canada",
-      rating: 4.5,
-      date: "December 2025",
-      review:
-        "Great value for money. The location is superb, and the rooms are very comfortable. The staff was friendly and helpful. Would definitely recommend to friends and family.",
-      image: null,
-      verified: true,
-      stayedFor: "Business",
-      roomType: "Standard Room",
-    },
-  ];
+  // Calculate values (moved before hooks)
+  const totalReviews = reviews.length;
 
   // Average rating and total reviews Calculations
-  const averageRating = (
-    reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length
-  ).toFixed(1);
-  const totalReviews = reviews.length;
+  const averageRating = totalReviews > 0
+    ? (reviews.reduce((acc, review) => acc + review.rating, 0) / totalReviews).toFixed(1)
+    : "0.0";
+
   const ratingCounts = {
     5: reviews.filter((r) => r.rating === 5).length,
     4: reviews.filter((r) => Math.floor(r.rating) === 4).length,
@@ -133,38 +57,51 @@ const GuestReviews = () => {
     1: reviews.filter((r) => Math.floor(r.rating) === 1).length,
   };
 
+  // Calculate recommendation percentage (reviews with rating >= 4)
+  const recommendationPercentage = totalReviews > 0
+    ? Math.round((reviews.filter((r) => r.rating >= 4).length / totalReviews) * 100)
+    : 0;
+
   // Auto-play functionality
   useEffect(() => {
-    if (!isAutoPlaying) return;
+    if (!isAutoPlaying || totalReviews === 0) return;
 
     const interval = setInterval(() => {
-      setCurrentIndex((prevIndex) => (prevIndex + 1) % reviews.length);
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % totalReviews);
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [isAutoPlaying, reviews.length]);
+  }, [isAutoPlaying, totalReviews]);
 
   // Review navigation - Next
   const nextReview = useCallback(() => {
+    if (totalReviews === 0) return;
     setIsAutoPlaying(false);
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % reviews.length);
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % totalReviews);
     // Resume auto-play after 10 seconds of inactivity
     setTimeout(() => setIsAutoPlaying(true), 10000);
-  }, [reviews.length]);
+  }, [totalReviews]);
 
   // Review navigation - Prev
   const prevReview = useCallback(() => {
+    if (totalReviews === 0) return;
     setIsAutoPlaying(false);
-    setCurrentIndex((prevIndex) => (prevIndex - 1 + reviews.length) % reviews.length);
+    setCurrentIndex((prevIndex) => (prevIndex - 1 + totalReviews) % totalReviews);
     setTimeout(() => setIsAutoPlaying(true), 10000);
-  }, [reviews.length]);
+  }, [totalReviews]);
 
   // Review navigation - Go to
   const goToReview = useCallback((index) => {
+    if (totalReviews === 0) return;
     setIsAutoPlaying(false);
     setCurrentIndex(index);
     setTimeout(() => setIsAutoPlaying(true), 10000);
-  }, []);
+  }, [totalReviews]);
+
+  // If no reviews, don't render the section (after all hooks)
+  if (totalReviews === 0) {
+    return null;
+  }
 
   return (
     <section className="bg-linear-to-b from-gray-50 to-white py-12 sm:py-16 md:py-20">
@@ -198,113 +135,133 @@ const GuestReviews = () => {
 
             {/* Rating Bars */}
             <div className="w-full max-w-md flex-1">
-              {[5, 4, 3, 2, 1].map((star) => (
-                <div key={star} className="mb-1.5 flex items-center gap-2 sm:mb-2 sm:gap-3">
-                  <div className="w-8 text-right text-xs text-gray-600 sm:w-12 sm:text-sm">
-                    {star} ★
+              {[5, 4, 3, 2, 1].map((star) => {
+                const percentage = totalReviews > 0 ? (ratingCounts[star] / totalReviews) * 100 : 0;
+                return (
+                  <div key={star} className="mb-1.5 flex items-center gap-2 sm:mb-2 sm:gap-3">
+                    <div className="w-8 text-right text-xs text-gray-600 sm:w-12 sm:text-sm">
+                      {star} ★
+                    </div>
+                    <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-gray-200 sm:h-2">
+                      <div
+                        className="h-full rounded-full bg-[#FFD700] transition-all duration-1000"
+                        style={{ width: `${percentage}%` }}
+                      ></div>
+                    </div>
+                    <div className="w-10 text-xs text-gray-600 sm:w-12 sm:text-sm">
+                      {Math.round(percentage)}%
+                    </div>
                   </div>
-                  <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-gray-200 sm:h-2">
-                    <div
-                      className="h-full rounded-full bg-[#FFD700] transition-all duration-1000"
-                      style={{ width: `${(ratingCounts[star] / totalReviews) * 100}%` }}
-                    ></div>
-                  </div>
-                  <div className="w-10 text-xs text-gray-600 sm:w-12 sm:text-sm">
-                    {((ratingCounts[star] / totalReviews) * 100).toFixed(0)}%
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             {/* Recommendation */}
             <div className="text-center">
-              <div className="mb-0.5 text-xl font-bold text-[#2C4549] sm:mb-1 sm:text-2xl">98%</div>
+              <div className="mb-0.5 text-xl font-bold text-[#2C4549] sm:mb-1 sm:text-2xl">
+                {recommendationPercentage}%
+              </div>
               <div className="text-xs text-gray-500 sm:text-sm">Would recommend</div>
-              <div className="mt-1 text-xs text-gray-400 sm:mt-2">Based on 500+ reviews</div>
+              <div className="mt-1 text-xs text-gray-400 sm:mt-2">
+                Based on {totalReviews} reviews
+              </div>
             </div>
           </div>
         </div>
 
         {/* Featured Reviews Carousel */}
-        <div className="relative mx-auto max-w-4xl px-8 sm:px-12 md:px-16">
-          <div className="min-h-75 rounded-xl bg-white p-5 shadow-xl transition-all duration-300 sm:min-h-87.5 sm:rounded-2xl sm:p-6 md:p-8 lg:p-10">
-            <FaQuoteLeft className="mb-4 text-2xl text-[#FFD700] opacity-50 sm:mb-6 sm:text-3xl md:text-4xl" />
+        {totalReviews > 0 && (
+          <div className="relative mx-auto max-w-4xl px-8 sm:px-12 md:px-16">
+            <div className="min-h-75 rounded-xl bg-white p-5 shadow-xl transition-all duration-300 sm:min-h-87.5 sm:rounded-2xl sm:p-6 md:p-8 lg:p-10">
+              <FaQuoteLeft className="mb-4 text-2xl text-[#FFD700] opacity-50 sm:mb-6 sm:text-3xl md:text-4xl" />
 
-            <div className="mb-4 sm:mb-6">
-              <StarRating rating={reviews[currentIndex].rating} />
-            </div>
+              <div className="mb-4 sm:mb-6">
+                <StarRating rating={reviews[currentIndex]?.rating || 0} />
+              </div>
 
-            <p className="mb-6 line-clamp-4 text-sm leading-relaxed text-gray-700 italic sm:mb-8 sm:line-clamp-none sm:text-base md:text-lg">
-              &ldquo;{reviews[currentIndex].review}&rdquo;
-            </p>
+              <p className="mb-6 line-clamp-4 text-sm leading-relaxed text-gray-700 italic sm:mb-8 sm:line-clamp-none sm:text-base md:text-lg">
+                &ldquo;{reviews[currentIndex]?.review || ""}&rdquo;
+              </p>
 
-            <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center sm:gap-4">
-              <div className="flex items-center gap-3 sm:gap-4">
-                {reviews[currentIndex].image ? (
-                  <Image
-                    src={reviews[currentIndex].image}
-                    alt={reviews[currentIndex].name}
-                    className="h-10 w-10 rounded-full object-cover sm:h-12 sm:w-12"
-                  />
-                ) : (
-                  <FaUserCircle className="h-10 w-10 shrink-0 text-gray-400 sm:h-12 sm:w-12" />
-                )}
-                <div>
-                  <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-                    <h4 className="text-sm font-semibold text-[#2C4549] sm:text-base">
-                      {reviews[currentIndex].name}
-                    </h4>
-                    {reviews[currentIndex].verified && (
-                      <MdVerified className="shrink-0 text-xs text-blue-500 sm:text-sm" />
+              <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center sm:gap-4">
+                <div className="flex items-center gap-3 sm:gap-4">
+                  {reviews[currentIndex]?.image ? (
+                    <Image
+                      src={reviews[currentIndex].image}
+                      alt={reviews[currentIndex].name}
+                      className="h-10 w-10 rounded-full object-cover sm:h-12 sm:w-12"
+                      width={48}
+                      height={48}
+                    />
+                  ) : (
+                    <FaUserCircle className="h-10 w-10 shrink-0 text-gray-400 sm:h-12 sm:w-12" />
+                  )}
+                  <div>
+                    <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                      <h4 className="text-sm font-semibold text-[#2C4549] sm:text-base">
+                        {reviews[currentIndex]?.name || ""}
+                      </h4>
+                      {reviews[currentIndex]?.verified && (
+                        <MdVerified className="shrink-0 text-xs text-blue-500 sm:text-sm" />
+                      )}
+                    </div>
+                    <div className="text-xs text-gray-500 sm:text-sm">
+                      {reviews[currentIndex]?.location || ""}
+                    </div>
+                    {(reviews[currentIndex]?.roomType || reviews[currentIndex]?.stayedFor) && (
+                      <div className="mt-0.5 text-xs text-gray-400 sm:mt-1">
+                        {reviews[currentIndex]?.roomType}
+                        {reviews[currentIndex]?.roomType && reviews[currentIndex]?.stayedFor && " • "}
+                        {reviews[currentIndex]?.stayedFor}
+                      </div>
                     )}
                   </div>
-                  <div className="text-xs text-gray-500 sm:text-sm">
-                    {reviews[currentIndex].location}
-                  </div>
-                  <div className="mt-0.5 text-xs text-gray-400 sm:mt-1">
-                    {reviews[currentIndex].roomType} • {reviews[currentIndex].stayedFor}
-                  </div>
+                </div>
+                <div className="text-xs text-gray-400 sm:text-right sm:text-sm">
+                  {reviews[currentIndex]?.date || ""}
                 </div>
               </div>
-              <div className="text-xs text-gray-400 sm:text-right sm:text-sm">
-                {reviews[currentIndex].date}
-              </div>
             </div>
+
+            {/* Navigation Buttons */}
+            {totalReviews > 1 && (
+              <>
+                <button
+                  onClick={prevReview}
+                  className="absolute top-1/2 left-0 z-10 -translate-x-2 -translate-y-1/2 rounded-full bg-white p-1.5 shadow-lg transition-all duration-300 hover:bg-[#FFD700] sm:left-1 sm:-translate-x-4 sm:p-2 md:-translate-x-6"
+                  aria-label="Previous review"
+                >
+                  <FaChevronLeft className="text-sm text-[#2C4549] hover:text-white sm:text-base" />
+                </button>
+
+                <button
+                  onClick={nextReview}
+                  className="absolute top-1/2 right-0 z-10 translate-x-2 -translate-y-1/2 rounded-full bg-white p-1.5 shadow-lg transition-all duration-300 hover:bg-[#FFD700] sm:right-1 sm:translate-x-4 sm:p-2 md:translate-x-6"
+                  aria-label="Next review"
+                >
+                  <FaChevronRight className="text-sm text-[#2C4549] hover:text-white sm:text-base" />
+                </button>
+              </>
+            )}
           </div>
-
-          {/* Navigation Buttons */}
-          <button
-            onClick={prevReview}
-            className="absolute top-1/2 left-0 z-10 -translate-x-2 -translate-y-1/2 rounded-full bg-white p-1.5 shadow-lg transition-all duration-300 hover:bg-[#FFD700] sm:left-1 sm:-translate-x-4 sm:p-2 md:-translate-x-6"
-            aria-label="Previous review"
-          >
-            <FaChevronLeft className="text-sm text-[#2C4549] hover:text-white sm:text-base" />
-          </button>
-
-          <button
-            onClick={nextReview}
-            className="absolute top-1/2 right-0 z-10 translate-x-2 -translate-y-1/2 rounded-full bg-white p-1.5 shadow-lg transition-all duration-300 hover:bg-[#FFD700] sm:right-1 sm:translate-x-4 sm:p-2 md:translate-x-6"
-            aria-label="Next review"
-          >
-            <FaChevronRight className="text-sm text-[#2C4549] hover:text-white sm:text-base" />
-          </button>
-        </div>
+        )}
 
         {/* Pagination Dots */}
-        <div className="mt-6 flex justify-center gap-1.5 sm:mt-8 sm:gap-2">
-          {reviews.map((_, idx) => (
-            <button
-              key={idx}
-              onClick={() => goToReview(idx)}
-              className={`h-1.5 rounded-full transition-all duration-300 sm:h-2 ${
-                currentIndex === idx
+        {totalReviews > 1 && (
+          <div className="mt-6 flex justify-center gap-1.5 sm:mt-8 sm:gap-2">
+            {reviews.map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => goToReview(idx)}
+                className={`h-1.5 rounded-full transition-all duration-300 sm:h-2 ${currentIndex === idx
                   ? "w-6 bg-[#FFD700] sm:w-8"
                   : "w-1.5 bg-gray-300 hover:bg-gray-400 sm:w-2"
-              }`}
-              aria-label={`Go to review ${idx + 1}`}
-            />
-          ))}
-        </div>
+                  }`}
+                aria-label={`Go to review ${idx + 1}`}
+              />
+            ))}
+          </div>
+        )}
 
         {/* View All Reviews Button */}
         <div className="mt-8 text-center sm:mt-10 md:mt-12">
@@ -320,14 +277,14 @@ const GuestReviews = () => {
         <div className="mx-auto mt-8 grid max-w-2xl grid-cols-3 gap-4 text-center sm:mt-10 sm:gap-6 md:mt-12 md:gap-8">
           <div className="text-xs text-gray-500 sm:text-sm">
             <div className="text-sm font-semibold text-[#2C4549] sm:text-base">★★★★★</div>
-            <div>Trustpilot 4.8</div>
+            <div>Trustpilot {averageRating}</div>
           </div>
           <div className="text-xs text-gray-500 sm:text-sm">
-            <div className="text-sm font-semibold text-[#2C4549] sm:text-base">500+</div>
+            <div className="text-sm font-semibold text-[#2C4549] sm:text-base">{totalReviews}+</div>
             <div>Happy Guests</div>
           </div>
           <div className="text-xs text-gray-500 sm:text-sm">
-            <div className="text-sm font-semibold text-[#2C4549] sm:text-base">98%</div>
+            <div className="text-sm font-semibold text-[#2C4549] sm:text-base">{recommendationPercentage}%</div>
             <div>Would Return</div>
           </div>
         </div>

@@ -1,4 +1,4 @@
-// Component/Home/FAQ/FAQ.jsx
+// src/Sections/Home/FAQ/FAQ.jsx
 "use client";
 
 // React
@@ -22,7 +22,15 @@ import {
 } from "react-icons/fi";
 import { MdOutlineRoomService } from "react-icons/md";
 
-const FAQ = () => {
+const FAQ = ({ data }) => {
+  // Extract data with fallbacks
+  const {
+    head = {},
+    faqs = [],
+    buttons = [],
+    information = {},
+  } = data || {};
+
   // Accordion
   const [openIndex, setOpenIndex] = useState(null);
 
@@ -32,131 +40,37 @@ const FAQ = () => {
   // Active category
   const [activeCategory, setActiveCategory] = useState("all");
 
-  // FAQ categories
-  const faqCategories = [
-    { id: "all", name: "All", icon: FiHelpCircle },
-    { id: "booking", name: "Booking", icon: FiCreditCard },
-    { id: "policies", name: "Policies", icon: FiShield },
-    { id: "amenities", name: "Amenities", icon: FiWifi },
-    { id: "services", name: "Services", icon: MdOutlineRoomService },
-  ];
+  // Get unique categories from FAQs
+  const faqCategories = useMemo(() => {
+    const categories = new Set();
+    categories.add("all");
+    faqs.forEach(faq => {
+      if (faq.category) categories.add(faq.category);
+    });
 
-  // FAQs
-  const faqs = useMemo(() => [
-    {
-      id: 1,
-      category: "booking",
-      question: "How do I make a reservation?",
-      answer:
-        "You can make a reservation through our website by clicking the 'Book Now' button, calling our reservation hotline at +1 (555) 123-4567, or sending an email to reservations@dahotel.com. Online booking is available 24/7 and offers the best rates guaranteed.",
-    },
-    {
-      id: 2,
-      category: "booking",
-      question: "Do I need to pay a deposit when booking?",
-      answer:
-        "Yes, we require a 20% deposit at the time of booking to secure your reservation. The remaining balance is due upon check-in. For special packages and peak seasons, full prepayment may be required.",
-    },
-    {
-      id: 3,
-      category: "policies",
-      question: "What is your cancellation policy?",
-      answer:
-        "Free cancellation up to 48 hours before check-in. Cancellations within 48 hours will incur a charge equal to the first night's stay. For non-refundable rates, no refunds are provided for cancellations or modifications.",
-    },
-    {
-      id: 4,
-      category: "policies",
-      question: "What are the check-in and check-out times?",
-      answer:
-        "Check-in time is 2:00 PM and check-out time is 12:00 PM. Early check-in and late check-out are subject to availability and may incur additional charges. We offer complimentary luggage storage for early arrivals or late departures.",
-    },
-    {
-      id: 5,
-      category: "amenities",
-      question: "Is WiFi free in the hotel?",
-      answer:
-        "Yes, we offer complimentary high-speed WiFi throughout the hotel, including all guest rooms, public areas, and the poolside. Premium high-speed internet is also available for business travelers at no additional cost.",
-    },
-    {
-      id: 6,
-      category: "amenities",
-      question: "Does the hotel have a swimming pool?",
-      answer:
-        "Yes, we have both indoor and outdoor temperature-controlled swimming pools. The outdoor pool is open from 7 AM to 8 PM, and the indoor pool is open 24/7. Pool towels are provided free of charge.",
-    },
-    {
-      id: 7,
-      category: "services",
-      question: "Is room service available?",
-      answer:
-        "Yes, we offer 24/7 room service with a diverse menu featuring local and international cuisine. Breakfast, lunch, dinner, and snacks are available. A service charge may apply for orders between 11 PM and 6 AM.",
-    },
-    {
-      id: 8,
-      category: "services",
-      question: "Does the hotel offer airport transportation?",
-      answer:
-        "Yes, we provide airport shuttle service for a nominal fee. Please inform us of your flight details at least 24 hours in advance to arrange pickup. Luxury car transfer can also be arranged upon request.",
-    },
-    {
-      id: 9,
-      category: "policies",
-      question: "Are pets allowed?",
-      answer:
-        "Pets are welcome at our hotel! We charge a $50 cleaning fee per stay. Maximum 2 pets per room. Please inform us when booking so we can prepare a pet-friendly room with amenities for your furry friend.",
-    },
-    {
-      id: 10,
-      category: "booking",
-      question: "Do you offer group booking discounts?",
-      answer:
-        "Yes, we offer special rates for group bookings of 5 rooms or more. Please contact our group sales department at groups@dahotel.com or call +1 (555) 123-4568 for customized quotes and packages.",
-    },
-    {
-      id: 11,
-      category: "amenities",
-      question: "Is breakfast included in the room price?",
-      answer:
-        "Breakfast inclusion depends on the rate plan you choose. Some packages include complimentary breakfast, while others do not. You can add breakfast for $18 per person per day. Children under 12 eat free when accompanied by a paying adult.",
-    },
-    {
-      id: 12,
-      category: "services",
-      question: "Does the hotel have a fitness center?",
-      answer:
-        "Yes, our fitness center is open 24/7 and features state-of-the-art equipment including treadmills, ellipticals, stationary bikes, weight machines, and free weights. Personal trainers can be arranged upon request.",
-    },
-    {
-      id: 13,
-      category: "policies",
-      question: "What is the minimum age to check-in?",
-      answer:
-        "Guests must be at least 18 years old to check-in. Guests under 18 must be accompanied by an adult. Valid government-issued photo ID and credit card are required at check-in.",
-    },
-    {
-      id: 14,
-      category: "booking",
-      question: "Can I modify or change my reservation?",
-      answer:
-        "Yes, you can modify your reservation online through your booking confirmation email, by calling our reservations department, or by email. Modifications are subject to availability and rate changes.",
-    },
-    {
-      id: 15,
-      category: "amenities",
-      question: "Is parking available?",
-      answer:
-        "Yes, we offer complimentary on-site parking for all guests. The parking area is secured with 24/7 CCTV surveillance. Valet parking is available for $10 per day.",
-    },
-  ], []);
+    // Map category IDs to display names and icons
+    const categoryMap = {
+      all: { name: "All", icon: FiHelpCircle },
+      booking: { name: "Booking", icon: FiCreditCard },
+      policies: { name: "Policies", icon: FiShield },
+      amenities: { name: "Amenities", icon: FiWifi },
+      services: { name: "Services", icon: MdOutlineRoomService },
+    };
+
+    return Array.from(categories).map(cat => ({
+      id: cat,
+      name: categoryMap[cat]?.name || cat.charAt(0).toUpperCase() + cat.slice(1),
+      icon: categoryMap[cat]?.icon || FiHelpCircle,
+    }));
+  }, [faqs]);
 
   // Filter FAQs based on search and category
   const filteredFaqs = useMemo(() => {
     return faqs.filter((faq) => {
       const matchesSearch =
         searchTerm === "" ||
-        faq.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        faq.answer.toLowerCase().includes(searchTerm.toLowerCase());
+        faq.question?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        faq.answer?.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesCategory = activeCategory === "all" || faq.category === activeCategory;
       return matchesSearch && matchesCategory;
     });
@@ -166,7 +80,22 @@ const FAQ = () => {
     setOpenIndex(openIndex === id ? null : id);
   };
 
-  const newLocal = "sm:w-4.5 sm:h-4.5";
+  // Get button styling based on button title
+  const getButtonStyle = (title) => {
+    if (title === "Live Chat") {
+      return "bg-[#FFD700] text-[#2C4549] hover:bg-[#FFE44D]";
+    }
+    return "bg-white/10 text-white hover:bg-white/20";
+  };
+
+  // Get button icon based on button title
+  const getButtonIcon = (title) => {
+    if (title === "Live Chat") return <FiMessageCircle size={16} className="sm:w-4.5 sm:h-4.5" />;
+    if (title === "Call Us") return <FiPhone size={16} className="sm:w-4.5 sm:h-4.5" />;
+    if (title === "Email Support") return <FiMail size={16} className="sm:w-4.5 sm:h-4.5" />;
+    return null;
+  };
+
   return (
     <section className="bg-linear-to-b from-gray-50 to-white py-12 sm:py-16 md:py-20 lg:py-24">
       <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
@@ -175,16 +104,16 @@ const FAQ = () => {
           <div className="mb-3 sm:mb-4 inline-flex items-center gap-1.5 sm:gap-2 rounded-full bg-[#FFD700]/10 px-3 sm:px-4 py-1.5 sm:py-2">
             <FiHelpCircle className="text-[#FFD700] w-4 h-4 sm:w-4.5 sm:h-4.5" />
             <span className="text-xs sm:text-sm font-semibold tracking-wide text-[#2C4549] uppercase">
-              FAQ
+              {head.title || "FAQ"}
             </span>
           </div>
 
           <h2 className="mb-3 sm:mb-4 text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-[#2C4549]">
-            Frequently Asked Questions
+            {head.subtitle || "Frequently Asked Questions"}
           </h2>
 
           <p className="text-sm sm:text-base md:text-lg text-gray-600 max-w-2xl mx-auto">
-            Find answers to common questions about your stay at DA Hotel
+            {head.description || "Find answers to common questions about your stay at DA Hotel"}
           </p>
         </div>
 
@@ -205,23 +134,23 @@ const FAQ = () => {
         </div>
 
         {/* Category Tabs */}
-        <div className="mb-6 sm:mb-8 md:mb-10 flex flex-wrap justify-center gap-1.5 sm:gap-2 md:gap-3">
-          {faqCategories.map((category) => (
-            <button
-              key={category.id}
-              onClick={() => setActiveCategory(category.id)}
-              className={`flex items-center gap-1.5 sm:gap-2 rounded-full px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-xs sm:text-sm ${activeCategory === category.id
-                ? "bg-[#FFD700] text-[#2C4549] shadow-md"
-                : "border border-gray-200 bg-white text-gray-600 hover:bg-gray-100"
-                }`}
-            >
-              <category.icon size={14} className="sm:w-4 sm:h-4" />
-              <span className="font-medium">
-                {category.name}
-              </span>
-            </button>
-          ))}
-        </div>
+        {faqCategories.length > 1 && (
+          <div className="mb-6 sm:mb-8 md:mb-10 flex flex-wrap justify-center gap-1.5 sm:gap-2 md:gap-3">
+            {faqCategories.map((category) => (
+              <button
+                key={category.id}
+                onClick={() => setActiveCategory(category.id)}
+                className={`flex items-center gap-1.5 sm:gap-2 rounded-full px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-xs sm:text-sm ${activeCategory === category.id
+                    ? "bg-[#FFD700] text-[#2C4549] shadow-md"
+                    : "border border-gray-200 bg-white text-gray-600 hover:bg-gray-100"
+                  }`}
+              >
+                <category.icon size={14} className="sm:w-4 sm:h-4" />
+                <span className="font-medium">{category.name}</span>
+              </button>
+            ))}
+          </div>
+        )}
 
         {/* FAQs List */}
         <div className="mx-auto max-w-4xl">
@@ -290,33 +219,54 @@ const FAQ = () => {
               Can&apos;t find the answer you&apos;re looking for? Please contact our friendly team.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
-              <Link
-                href="/contact"
-                className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#FFD700] px-5 sm:px-6 py-2.5 sm:py-3 font-semibold text-[#2C4549] text-sm sm:text-base transition hover:bg-[#FFE44D] shadow-md hover:shadow-lg"
-              >
-                <FiMessageCircle size={16} className="sm:w-4.5 sm:h-4.5" />
-                Live Chat
-              </Link>
-              <a
-                href="tel:+15551234567"
-                className="inline-flex items-center justify-center gap-2 rounded-lg bg-white/10 px-5 sm:px-6 py-2.5 sm:py-3 font-semibold text-white text-sm sm:text-base transition hover:bg-white/20"
-              >
-                <FiPhone size={16} className={newLocal} />
-                Call Us
-              </a>
-              <a
-                href="mailto:support@dahotel.com"
-                className="inline-flex items-center justify-center gap-2 rounded-lg bg-white/10 px-5 sm:px-6 py-2.5 sm:py-3 font-semibold text-white text-sm sm:text-base transition hover:bg-white/20"
-              >
-                <FiMail size={16} className="sm:w-4.5 sm:h-4.5" />
-                Email Support
-              </a>
+              {buttons.length > 0 ? (
+                buttons.map((button, index) => (
+                  <Link
+                    key={index}
+                    href={button.link || "/contact"}
+                    className={`inline-flex items-center justify-center gap-2 rounded-lg px-5 sm:px-6 py-2.5 sm:py-3 font-semibold text-sm sm:text-base transition shadow-md hover:shadow-lg ${getButtonStyle(button.title)}`}
+                  >
+                    {getButtonIcon(button.title)}
+                    {button.title}
+                  </Link>
+                ))
+              ) : (
+                <>
+                  <Link
+                    href="/contact"
+                    className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#FFD700] px-5 sm:px-6 py-2.5 sm:py-3 font-semibold text-[#2C4549] text-sm sm:text-base transition hover:bg-[#FFE44D] shadow-md hover:shadow-lg"
+                  >
+                    <FiMessageCircle size={16} className="sm:w-4.5 sm:h-4.5" />
+                    Live Chat
+                  </Link>
+                  <a
+                    href="tel:+15551234567"
+                    className="inline-flex items-center justify-center gap-2 rounded-lg bg-white/10 px-5 sm:px-6 py-2.5 sm:py-3 font-semibold text-white text-sm sm:text-base transition hover:bg-white/20"
+                  >
+                    <FiPhone size={16} className="sm:w-4.5 sm:h-4.5" />
+                    Call Us
+                  </a>
+                  <a
+                    href="mailto:support@dahotel.com"
+                    className="inline-flex items-center justify-center gap-2 rounded-lg bg-white/10 px-5 sm:px-6 py-2.5 sm:py-3 font-semibold text-white text-sm sm:text-base transition hover:bg-white/20"
+                  >
+                    <FiMail size={16} className="sm:w-4.5 sm:h-4.5" />
+                    Email Support
+                  </a>
+                </>
+              )}
             </div>
-            <div className="mt-4 sm:mt-6 text-xs sm:text-sm text-gray-400 flex flex-col sm:flex-row justify-center items-center gap-1 sm:gap-3">
-              <span>📞 +1 (555) 123-4567</span>
-              <span className="hidden sm:inline">•</span>
-              <span>✉️ support@dahotel.com</span>
-            </div>
+            {information && (information.phone || information.email) && (
+              <div className="mt-4 sm:mt-6 text-xs sm:text-sm text-gray-400 flex flex-col sm:flex-row justify-center items-center gap-1 sm:gap-3">
+                {information.phone && (
+                  <>
+                    <span>📞 {information.phone}</span>
+                    {information.email && <span className="hidden sm:inline">•</span>}
+                  </>
+                )}
+                {information.email && <span>✉️ {information.email}</span>}
+              </div>
+            )}
           </div>
         </div>
       </div>

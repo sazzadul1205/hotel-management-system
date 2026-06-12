@@ -20,7 +20,32 @@ import {
 } from "react-icons/fi";
 import { MdDirectionsCar, MdDirectionsTransit, MdDirectionsWalk } from "react-icons/md";
 
-const LocationMap = () => {
+const LocationMap = ({ data }) => {
+  // Extract data with fallbacks
+  const {
+    head = {},
+    hotelLocation = {},
+    directions = {},
+  } = data || {};
+
+  // Destructure hotelLocation with proper fallbacks
+  const hotelLocationData = {
+    name: hotelLocation.name || "DA Hotel",
+    address: hotelLocation.address || "123 Luxury Avenue, Downtown District, New York, NY 10001",
+    lat: hotelLocation.lat || 40.7128,
+    lng: hotelLocation.lng || -74.006,
+    phone: hotelLocation.phone || "+1 (555) 123-4567",
+    email: hotelLocation.email || "reservations@dahotel.com",
+    website: hotelLocation.website || "www.dahotel.com",
+    nearby: hotelLocation.nearby || [],
+  };
+
+  // Destructure directions with proper fallbacks
+  const directionsData = {
+    airport: directions.airport || { name: "JFK International Airport", driving: "25 min", transit: "45 min", taxi: "$45-60" },
+    train: directions.train || { name: "Grand Central Station", driving: "10 min", transit: "15 min", taxi: "$15-20" },
+  };
+
   // Selected transport
   const [selectedTransport, setSelectedTransport] = useState("driving");
 
@@ -30,56 +55,21 @@ const LocationMap = () => {
   // Active tab
   const [activeTab, setActiveTab] = useState("map");
 
-  // Hotel coordinates (New York City example)
-  const hotelLocation = {
-    name: "DA Hotel",
-    address: "123 Luxury Avenue, Downtown District, New York, NY 10001",
-    lat: 40.7128,
-    lng: -74.006,
-    phone: "+1 (555) 123-4567",
-    email: "reservations@dahotel.com",
-    website: "www.dahotel.com",
-    nearby: [
-      { name: "Central Park", distance: "0.8 miles", time: "5 min drive" },
-      { name: "Times Square", distance: "1.2 miles", time: "8 min drive" },
-      { name: "Empire State Building", distance: "0.5 miles", time: "3 min drive" },
-      { name: "Broadway Theater", distance: "1.0 miles", time: "6 min drive" },
-      { name: "Rockefeller Center", distance: "0.9 miles", time: "5 min drive" },
-      { name: "Museum of Modern Art", distance: "0.7 miles", time: "4 min drive" },
-    ],
-  };
-
-  // Directions from popular landmarks
-  const directions = {
-    airport: {
-      name: "JFK International Airport",
-      driving: "25 min",
-      transit: "45 min",
-      taxi: "$45-60",
-    },
-    train: {
-      name: "Grand Central Station",
-      driving: "10 min",
-      transit: "15 min",
-      taxi: "$15-20",
-    },
-  };
-
   // Copy address to clipboard
   const copyAddress = useCallback(async () => {
     try {
-      await navigator.clipboard.writeText(hotelLocation.address);
+      await navigator.clipboard.writeText(hotelLocationData.address);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (error) {
       console.error("Failed to copy address:", error);
     }
-  }, [hotelLocation.address]);
+  }, [hotelLocationData.address]);
 
   // Open maps
   const openMaps = useCallback(
     (service) => {
-      const encodedAddress = encodeURIComponent(hotelLocation.address);
+      const encodedAddress = encodeURIComponent(hotelLocationData.address);
       const urls = {
         google: `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`,
         waze: `https://www.waze.com/ul?q=${encodedAddress}`,
@@ -88,13 +78,13 @@ const LocationMap = () => {
       };
       window.open(urls[service], "_blank");
     },
-    [hotelLocation.address],
+    [hotelLocationData.address],
   );
 
   // Get directions
   const getDirections = useCallback(
     (mode) => {
-      const encodedAddress = encodeURIComponent(hotelLocation.address);
+      const encodedAddress = encodeURIComponent(hotelLocationData.address);
       const modeParam = {
         driving: "d",
         transit: "r",
@@ -105,14 +95,11 @@ const LocationMap = () => {
         "_blank",
       );
     },
-    [hotelLocation.address],
+    [hotelLocationData.address],
   );
 
-  // OpenStreetMap static image URL (no API key needed, never blocked)
-  const staticMapUrl = `https://staticmap.openstreetmap.de/staticmap.php?center=${hotelLocation.lat},${hotelLocation.lng}&zoom=14&size=800x400&markers=${hotelLocation.lat},${hotelLocation.lng},lightred1`;
-
   // OpenStreetMap embed URL (no API key needed)
-  const embedMapUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${hotelLocation.lng - 0.05},${hotelLocation.lat - 0.05},${hotelLocation.lng + 0.05},${hotelLocation.lat + 0.05}&layer=mapnik&marker=${hotelLocation.lat},${hotelLocation.lng}`;
+  const embedMapUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${hotelLocationData.lng - 0.05},${hotelLocationData.lat - 0.05},${hotelLocationData.lng + 0.05},${hotelLocationData.lat + 0.05}&layer=mapnik&marker=${hotelLocationData.lat},${hotelLocationData.lng}`;
 
   return (
     <section className="bg-white py-12 sm:py-16 md:py-20 lg:py-24">
@@ -122,17 +109,16 @@ const LocationMap = () => {
           <div className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-[#FFD700]/10 px-3 py-1.5 sm:mb-4 sm:gap-2 sm:px-4 sm:py-2">
             <FiMapPin className="h-4 w-4 text-[#FFD700] sm:h-4.5 sm:w-4.5" />
             <span className="text-xs font-semibold tracking-wide text-[#2C4549] uppercase sm:text-sm">
-              Find Us
+              {head.title || "Find Us"}
             </span>
           </div>
 
           <h2 className="mb-3 text-2xl font-bold text-[#2C4549] sm:mb-4 sm:text-3xl md:text-4xl lg:text-5xl">
-            Location & Directions
+            {head.subtitle || "Location & Directions"}
           </h2>
 
           <p className="mx-auto max-w-2xl text-sm text-gray-600 sm:text-base md:text-lg">
-            Conveniently located in the heart of the city, close to major attractions and transport
-            hubs
+            {head.description || "Conveniently located in the heart of the city, close to major attractions and transport hubs"}
           </p>
         </div>
 
@@ -148,7 +134,7 @@ const LocationMap = () => {
                     <FiMapPin size={20} className="text-[#FFD700] sm:h-6 sm:w-6" />
                   </div>
                   <div>
-                    <h3 className="text-base font-bold sm:text-lg">DA Hotel</h3>
+                    <h3 className="text-base font-bold sm:text-lg">{hotelLocationData.name}</h3>
                     <p className="text-xs text-gray-300 sm:text-sm">Luxury Hotel</p>
                   </div>
                 </div>
@@ -166,26 +152,26 @@ const LocationMap = () => {
               </div>
 
               <p className="mb-3 text-sm leading-relaxed text-gray-200 sm:mb-4 sm:text-base">
-                {hotelLocation.address}
+                {hotelLocationData.address}
               </p>
 
               <div className="space-y-1.5 border-t border-white/20 pt-3 sm:space-y-2 sm:pt-4">
                 <div className="flex items-center gap-2 text-xs sm:gap-3 sm:text-sm">
-                  <FiPhone className="text-[#FFD700] shrink-0" size={14} />
+                  <FiPhone className="shrink-0 text-[#FFD700]" size={14} />
                   <a
-                    href={`tel:${hotelLocation.phone}`}
+                    href={`tel:${hotelLocationData.phone}`}
                     className="truncate transition hover:text-[#FFD700]"
                   >
-                    {hotelLocation.phone}
+                    {hotelLocationData.phone}
                   </a>
                 </div>
                 <div className="flex items-center gap-2 text-xs sm:gap-3 sm:text-sm">
                   <FiMail className="shrink-0 text-[#FFD700]" size={14} />
                   <a
-                    href={`mailto:${hotelLocation.email}`}
+                    href={`mailto:${hotelLocationData.email}`}
                     className="truncate transition hover:text-[#FFD700]"
                   >
-                    {hotelLocation.email}
+                    {hotelLocationData.email}
                   </a>
                 </div>
               </div>
@@ -259,24 +245,24 @@ const LocationMap = () => {
               <div className="space-y-2 sm:space-y-3">
                 <div className="flex items-center justify-between border-b border-gray-100 pb-2">
                   <span className="text-xs text-gray-600 sm:text-sm">
-                    ✈️ {directions.airport.name}
+                    ✈️ {directionsData.airport.name}
                   </span>
                   <span className="text-xs font-semibold text-[#2C4549] sm:text-sm">
-                    {directions.airport.driving}
+                    {directionsData.airport.driving}
                   </span>
                 </div>
                 <div className="flex items-center justify-between border-b border-gray-100 pb-2">
                   <span className="text-xs text-gray-600 sm:text-sm">
-                    🚂 {directions.train.name}
+                    🚂 {directionsData.train.name}
                   </span>
                   <span className="text-xs font-semibold text-[#2C4549] sm:text-sm">
-                    {directions.train.driving}
+                    {directionsData.train.driving}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-gray-600 sm:text-sm">🚕 Taxi from Airport</span>
                   <span className="text-xs font-semibold text-[#2C4549] sm:text-sm">
-                    {directions.airport.taxi}
+                    {directionsData.airport.taxi}
                   </span>
                 </div>
               </div>
@@ -337,7 +323,7 @@ const LocationMap = () => {
                           />
                         </div>
                         <div className="absolute -top-8 left-1/2 -translate-x-1/2 transform rounded bg-[#2C4549] px-2 py-1 text-xs font-semibold whitespace-nowrap text-white shadow-lg">
-                          📍 DA Hotel
+                          📍 {hotelLocationData.name}
                         </div>
                       </div>
                     </div>
@@ -362,41 +348,45 @@ const LocationMap = () => {
                   <h3 className="mb-3 text-lg font-bold text-[#2C4549] sm:mb-4 sm:text-xl">
                     Nearby Attractions
                   </h3>
-                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
-                    {hotelLocation.nearby.map((place, index) => (
-                      <div
-                        key={index}
-                        className="group flex cursor-pointer items-center justify-between rounded-lg bg-gray-50 p-3 transition hover:bg-gray-100 sm:rounded-xl sm:p-4"
-                      >
-                        <div className="min-w-0 flex-1">
-                          <h4 className="truncate text-sm font-semibold text-[#2C4549] transition group-hover:text-[#FFD700] sm:text-base">
-                            {place.name}
-                          </h4>
-                          <div className="mt-1 flex items-center gap-2 sm:gap-3">
-                            <span className="flex items-center gap-1 text-xs text-gray-500">
-                              <FiMapPin size={10} /> {place.distance}
-                            </span>
-                            <span className="flex items-center gap-1 text-xs text-gray-500">
-                              <FiClock size={10} /> {place.time}
-                            </span>
-                          </div>
-                        </div>
-                        <button
-                          onClick={() => {
-                            const encodedPlace = encodeURIComponent(place.name);
-                            window.open(
-                              `https://www.google.com/maps/search/?api=1&query=${encodedPlace}`,
-                              "_blank",
-                            );
-                          }}
-                          className="ml-2 shrink-0 text-[#2C4549] opacity-0 transition group-hover:opacity-100"
-                          aria-label={`View ${place.name} on map`}
+                  {hotelLocationData.nearby.length > 0 ? (
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
+                      {hotelLocationData.nearby.map((place, index) => (
+                        <div
+                          key={index}
+                          className="group flex cursor-pointer items-center justify-between rounded-lg bg-gray-50 p-3 transition hover:bg-gray-100 sm:rounded-xl sm:p-4"
                         >
-                          <FiExternalLink size={14} className="sm:h-4 sm:w-4" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
+                          <div className="min-w-0 flex-1">
+                            <h4 className="truncate text-sm font-semibold text-[#2C4549] transition group-hover:text-[#FFD700] sm:text-base">
+                              {place.name}
+                            </h4>
+                            <div className="mt-1 flex items-center gap-2 sm:gap-3">
+                              <span className="flex items-center gap-1 text-xs text-gray-500">
+                                <FiMapPin size={10} /> {place.distance}
+                              </span>
+                              <span className="flex items-center gap-1 text-xs text-gray-500">
+                                <FiClock size={10} /> {place.time}
+                              </span>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => {
+                              const encodedPlace = encodeURIComponent(place.name);
+                              window.open(
+                                `https://www.google.com/maps/search/?api=1&query=${encodedPlace}`,
+                                "_blank",
+                              );
+                            }}
+                            className="ml-2 shrink-0 text-[#2C4549] opacity-0 transition group-hover:opacity-100"
+                            aria-label={`View ${place.name} on map`}
+                          >
+                            <FiExternalLink size={14} className="sm:h-4 sm:w-4" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-center text-gray-500 py-8">No nearby attractions listed.</p>
+                  )}
 
                   {/* Area Info */}
                   <div className="mt-4 rounded-lg bg-[#2C4549]/5 p-3 sm:mt-6 sm:rounded-xl sm:p-4">
@@ -434,7 +424,7 @@ const LocationMap = () => {
               <button
                 onClick={() =>
                   window.open(
-                    `https://www.openstreetmap.org/search?query=${encodeURIComponent(hotelLocation.address)}`,
+                    `https://www.openstreetmap.org/search?query=${encodeURIComponent(hotelLocationData.address)}`,
                     "_blank",
                   )
                 }
@@ -460,7 +450,7 @@ const LocationMap = () => {
             <button
               onClick={() =>
                 window.open(
-                  `https://www.openstreetmap.org/search?query=${encodeURIComponent(hotelLocation.address)}`,
+                  `https://www.openstreetmap.org/search?query=${encodeURIComponent(hotelLocationData.address)}`,
                   "_blank",
                 )
               }
@@ -474,7 +464,7 @@ const LocationMap = () => {
       </div>
 
       {/* Bounce animation */}
-      <style>{`
+      <style jsx>{`
         @keyframes bounce {
           0%,
           100% {
