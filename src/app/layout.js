@@ -8,6 +8,9 @@ import Footer from "@/Shared/Footer/Footer";
 import Navbar from "@/Shared/Navbar/Navbar";
 import ToTopButton from "@/Shared/ToTopButton/ToTopButton";
 
+// Providers
+import QueryProvider from "@/providers/QueryProvider";
+
 // Fonts
 import { Geist, Geist_Mono } from "next/font/google";
 
@@ -33,13 +36,16 @@ export default function RootLayout({ children }) {
   return (
     <html
       lang="en"
+      data-theme="light"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      style={{ scrollBehavior: "smooth" }}
     >
       <body>
         <Navbar />
 
-        <main className="flex flex-col min-h-screen bg-white" >{children}</main>
-
+        <QueryProvider className="flex flex-col min-h-screen bg-white">
+          {children}
+        </QueryProvider>
         <Footer />
 
         <ToTopButton />
