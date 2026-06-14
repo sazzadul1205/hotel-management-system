@@ -11,7 +11,6 @@ import PricingPlans from "@/Sections/Home/PricingPlans/PricingPlans";
 import GuestReviews from "@/Sections/Home/GuestReviews/GuestReviews";
 import HotelFeatures from "@/Sections/Home/HotelFeatures/HotelFeatures";
 import BookingSearchForm from "@/Sections/Home/BookingSearchForm/BookingSearchForm";
-import button from "daisyui/components/button";
 
 export default function Home() {
   // Hero content
